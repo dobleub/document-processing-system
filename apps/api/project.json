@@ -1,0 +1,72 @@
+{
+  "name": "api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/api",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "go build -o ../../dist/api/bootstrap main.go"
+      }
+    },
+    "build:production": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "GOOS=linux GOARCH=amd64 go build -tags lambda.norpc -o ../../dist/api/bootstrap main.go"
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "GO111MODULE=auto gin --immediate --buildArgs=\"-gcflags='all=-N -l' -ldflags='-s -w' -buildvcs=false\" --laddr=0.0.0.0 --port=3030 --appPort=8080 run main.go"
+      }
+    },
+    "dlv": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "dlv debug --headless --listen=:4000 --api-version=2 --accept-multiclient --log --"
+      }
+    },
+    "sam:build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "sam build"
+      }
+    },
+    "sam:serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "sam local start-api"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "go test -cover ./... -v"
+      }
+    },
+    "tidy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "go mod tidy"
+      }
+    },
+    "prettier": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "go fmt ./..."
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Failed - Too Many Attempts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Login Failed - Too Many Attempts</h1>
+        <p>Dear {{username}},</p>
+        <p>Your account has been temporarily locked due to too many failed login attempts. Please try again later.</p>
+        <p>If you believe this is a mistake, please contact support.</p>
+        <p>Thank you!</p>
+    </div>
+</body>
+</html>

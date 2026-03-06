@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  dps-api-lambda
+
+  Sample SAM Template for dps-api-lambda
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 128
+
+Resources:
+  MIPApiFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: src/
+      Handler: bootstrap
+      Runtime: go1.x
+      Architectures:
+      - x86_64
+      Events:
+        CatchAll:
+          Type: Api # More info about API Event Source:
+          Properties:
+            Path: /
+            Method: POST
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          ENDPOINT_DEV_URI: !Ref ENDPOINT_DEV_URI
+          MONGODB_URI: !Ref MONGODB_URI
+          MONGODB_DB: !Ref MONGODB_DB
+          AWS_REGION: !Ref AWS_REGION
+          AWS_API_KEY: !Ref AWS_API_KEY
+          AWS_SECRET_ACCESS_KEY: !Ref AWS_SECRET_ACCESS_KEY
+          AWS_EXECUTION_ENV: !Ref AWS_EXECUTION_ENV
+          AWS_SUBSCRIPTION_ENDPOINT: !Ref AWS_SUBSCRIPTION_ENDPOINT
+
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Ref: ApplicationResourceGroup
+      AutoConfigurationEnabled: 'true'
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  MIPApiAPI:
+    Description: API Gateway endpoint URL for Prod environment for First Function
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  MIPApiFunction:
+    Description: First Lambda Function ARN
+    Value: !GetAtt MIPApiFunction.Arn
+  MIPApiFunctionIamRole:
+    Description: Implicit IAM Role created for Hello World function
+    Value: !GetAtt MIPApiFunctionRole.Arn

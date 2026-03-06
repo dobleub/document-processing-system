@@ -1,0 +1,54 @@
+services:
+  app: # dps-app service
+    container_name: dps-app
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: app.dockerfile
+    ports:
+      - "3030:3000"
+    volumes:
+      - ./:/app
+    env_file:
+      - ./apps/dashboard/.env
+    depends_on:
+      - api
+    networks:
+      - dps-network
+
+  api: # dps-api service
+    container_name: dps-api
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: api.dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/app
+    env_file:
+      - ./apps/api/.env
+    depends_on:
+      - db
+    networks:
+      - dps-network
+
+  db: # MongoDB service
+    container_name: dps-db
+    restart: unless-stopped
+    image: mongo:8-noble
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+    env_file:
+      - ./db/.env
+    networks:
+      - dps-network
+
+networks:
+  dps-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
