@@ -33,10 +33,11 @@ type MailConfig struct {
 }
 
 type Config struct {
-	Endpoint *Endpoint      `env:", prefix=ENDPOINT_"`
-	MongoDB  *MongoDBConfig `env:", prefix=MONGODB_" json:",omitempty"`
-	AWS      *AWSConfig     `env:", prefix=AWS_" json:",omitempty"`
-	Mail     *MailConfig    `env:", prefix=MAIL_" json:",omitempty"`
+	Endpoint     *Endpoint      `env:", prefix=ENDPOINT_"`
+	MongoDB      *MongoDBConfig `env:", prefix=MONGODB_" json:",omitempty"`
+	AWS          *AWSConfig     `env:", prefix=AWS_" json:",omitempty"`
+	Mail         *MailConfig    `env:", prefix=MAIL_" json:",omitempty"`
+	APIAuthToken string         `env:"API_AUTH_TOKEN" json:",omitempty"`
 }
 
 func SetUp(cxt context.Context) (*Config, error) {

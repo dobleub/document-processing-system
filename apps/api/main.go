@@ -9,17 +9,20 @@ import (
 	"nx-recipes/dps/lambda/interfaces"
 	"nx-recipes/dps/lambda/lib/database"
 	"nx-recipes/dps/lambda/logger"
+	"nx-recipes/dps/lambda/middlewares"
+	processDomainControllers "nx-recipes/dps/lambda/src/processDomain/controllers"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 )
 
 var (
-	router     *mux.Router
+	router     *gin.Engine
 	appContext context.Context
 	appLogger  *zap.Logger
 	env        *config.Config
@@ -54,12 +57,28 @@ func init() {
 	appLogger.Info("DB Connection Setted Up")
 
 	// setup router
-	router = mux.NewRouter()
+	router = gin.New()
+	middlewares.Setup(router, appLogger, env, dbContext)
+
 	// setup routes
-	router.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hello, World!"))
-	}))
+	router.GET("/", func(c *gin.Context) {
+		c.String(http.StatusOK, "Hello, World!")
+	})
+	processRouter := router.Group("/process")
+	{
+		processRouter.POST("/start", processDomainControllers.StartProcessController)
+		processRouter.POST("/stop/:id", processDomainControllers.StopProcessController)
+		processRouter.GET("/status/:id", processDomainControllers.StatusProcessController)
+		processRouter.GET("/list", processDomainControllers.ListProcessController)
+		processRouter.GET("/results/:id", processDomainControllers.ResultsProcessController)
+	}
+	// add swagger docs route
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// add health check route
+	router.GET("/health", func(c *gin.Context) {
+		// TODO: add real health check logic
+		c.String(http.StatusOK, "OK")
+	})
 	appLogger.Info("API Handler Setted Up")
 }
 
@@ -78,11 +97,9 @@ func main() {
 	if isRunningAtLambda {
 		lambda.StartWithOptions(handler, lambda.WithContext(appContext))
 	} else {
-		headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization", "Access-Control-Allow-Origin"})
-		credentials := handlers.AllowCredentials()
-		methods := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS"})
-		ttl := handlers.MaxAge(3600)
-		origins := handlers.AllowedOrigins([]string{"*"})
-		http.ListenAndServe(":8080", handlers.CORS(headers, credentials, methods, ttl, origins)(router))
+		appLogger.Info("Running locally, starting HTTP server on port 8080")
+		if err := router.Run(":8080"); err != nil {
+			appLogger.Fatal("Failed to start HTTP server", zap.Error(err))
+		}
 	}
 }

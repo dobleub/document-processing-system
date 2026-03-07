@@ -67,6 +67,13 @@
         "cwd": "apps/api",
         "command": "go fmt ./..."
       }
+    },
+    "swagger": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "swag init -g main.go"
+      }
     }
   }
 }
