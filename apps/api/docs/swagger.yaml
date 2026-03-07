@@ -1,4 +1,31 @@
 info:
   contact: {}
-paths: {}
+paths:
+  /process/start:
+    post:
+      consumes:
+      - application/json
+      description: Start a new process with the provided data
+      parameters:
+      - description: Process Data
+        in: body
+        name: data
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Process Started
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Start a Process
+      tags:
+      - Process
 swagger: "2.0"

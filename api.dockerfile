@@ -40,6 +40,7 @@ COPY --chown=${G_USER}:${G_USER} --from=dps_base_node_cache /src/package-lock.js
 RUN npm install -g nx
 # Install codegangsta/gin
 RUN go install github.com/codegangsta/gin@latest
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 
 RUN nx tidy api
 

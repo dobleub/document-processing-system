@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"nx-recipes/dps/lambda/config"
+	docs "nx-recipes/dps/lambda/docs"
 	"nx-recipes/dps/lambda/interfaces"
 	"nx-recipes/dps/lambda/lib/database"
 	"nx-recipes/dps/lambda/logger"
@@ -64,6 +65,7 @@ func init() {
 	router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Hello, World!")
 	})
+	docs.SwaggerInfo.BasePath = "/process"
 	processRouter := router.Group("/process")
 	{
 		processRouter.POST("/start", processDomainControllers.StartProcessController)

@@ -72,7 +72,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/api",
-        "command": "swag init -g main.go"
+        "command": "swag init -g main.go swag init --templateDelims \"{{,}}\""
       }
     }
   }
