@@ -53,9 +53,9 @@ func StartProcessHandler(c *gin.Context) {
 	// process the files
 	id := uuid.New().String()
 
-	operationStatus := &pd_interfaces.OperationStatus{}
-	operationStatus.Initialize(id)
-	state.Store(id, operationStatus)
+	operationResponse := &pd_interfaces.OperationResponse{}
+	operationResponse.Initialize(id)
+	state.Store(id, operationResponse)
 
 	// process files from a directory
 	// [ ] Use FileManager to list files from a specified directory

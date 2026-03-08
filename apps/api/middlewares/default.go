@@ -51,6 +51,7 @@ func Setup(router *gin.Engine, appLogger *zap.Logger, env *config.Config, dbCont
 	})
 	// Add basic auth middleware for protected routes
 	router.Use(func(c *gin.Context) {
+		// Allow unauthenticated access to health. Swagger and docs endpoints are protected but for simplicity we will allow unauthenticated access to them as well
 		if c.FullPath() == "/health" || c.FullPath() == "/swagger/*any" {
 			c.Next()
 			return

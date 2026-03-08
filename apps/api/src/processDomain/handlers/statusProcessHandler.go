@@ -60,8 +60,11 @@ func StatusProcessHandler(c *gin.Context) {
 	logger.Info("Status Process", zap.String("processId", processId), zap.Duration("duration", duration))
 
 	if val, ok := state.Load(processId); ok {
+		opResponse := val.(*pd_interfaces.OperationResponse)
+		opStatus := opResponse.Status
+
 		c.Header("Content-Type", "application/json")
-		c.JSON(http.StatusOK, val.(*pd_interfaces.OperationStatus))
+		c.JSON(http.StatusOK, opStatus)
 		return
 	}
 
