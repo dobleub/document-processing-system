@@ -13,6 +13,7 @@ require (
 
 require (
 	github.com/gin-gonic/gin v1.9.1
+	github.com/google/uuid v1.5.0
 	github.com/mattn/go-colorable v0.1.13
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1

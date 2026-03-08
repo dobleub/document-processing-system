@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strings"
+	"sync"
 
 	"nx-recipes/dps/lambda/config"
 	docs "nx-recipes/dps/lambda/docs"
@@ -11,7 +12,7 @@ import (
 	"nx-recipes/dps/lambda/lib/database"
 	"nx-recipes/dps/lambda/logger"
 	"nx-recipes/dps/lambda/middlewares"
-	processDomainControllers "nx-recipes/dps/lambda/src/processDomain/controllers"
+	processDomainHandlers "nx-recipes/dps/lambda/src/processDomain/handlers"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -59,7 +60,8 @@ func init() {
 
 	// setup router
 	router = gin.New()
-	middlewares.Setup(router, appLogger, env, dbContext)
+	var state sync.Map // Initialize the state map
+	middlewares.Setup(router, appLogger, env, dbContext, &state)
 
 	// setup routes
 	router.GET("/", func(c *gin.Context) {
@@ -68,11 +70,11 @@ func init() {
 	docs.SwaggerInfo.BasePath = "/process"
 	processRouter := router.Group("/process")
 	{
-		processRouter.POST("/start", processDomainControllers.StartProcessController)
-		processRouter.POST("/stop/:id", processDomainControllers.StopProcessController)
-		processRouter.GET("/status/:id", processDomainControllers.StatusProcessController)
-		processRouter.GET("/list", processDomainControllers.ListProcessController)
-		processRouter.GET("/results/:id", processDomainControllers.ResultsProcessController)
+		processRouter.POST("/start", processDomainHandlers.StartProcessHandler)
+		processRouter.POST("/stop/:id", processDomainHandlers.StopProcessHandler)
+		processRouter.GET("/status/:id", processDomainHandlers.StatusProcessHandler)
+		processRouter.GET("/list", processDomainHandlers.ListProcessHandler)
+		processRouter.GET("/results/:id", processDomainHandlers.ResultsProcessHandler)
 	}
 	// add swagger docs route
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

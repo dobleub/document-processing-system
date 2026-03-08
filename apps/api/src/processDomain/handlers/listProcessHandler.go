@@ -6,6 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ListProcessController(c *gin.Context) {
+func ListProcessHandler(c *gin.Context) {
 	c.String(http.StatusOK, "List all Process")
 }

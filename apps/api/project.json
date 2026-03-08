@@ -51,7 +51,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/api",
-        "command": "go test -cover ./... -v"
+        "command": "GOTOOLCHAIN=go1.25.0+auto go test -cover ./... -v"
       }
     },
     "tidy": {

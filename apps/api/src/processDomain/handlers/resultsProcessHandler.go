@@ -6,6 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ResultsProcessController(c *gin.Context) {
+func ResultsProcessHandler(c *gin.Context) {
 	c.String(http.StatusOK, "Result Process")
 }

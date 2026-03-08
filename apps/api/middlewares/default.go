@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"net/http"
+	"sync"
 
 	"nx-recipes/dps/lambda/config"
 	"nx-recipes/dps/lambda/interfaces"
@@ -11,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func Setup(router *gin.Engine, appLogger *zap.Logger, env *config.Config, dbContext interfaces.MongoDBContext) {
+func Setup(router *gin.Engine, appLogger *zap.Logger, env *config.Config, dbContext interfaces.MongoDBContext, state *sync.Map) {
 	// Add logging and recovery middleware
 	gin.DefaultWriter = colorable.NewColorableStdout()
 	router.Use(gin.LoggerWithWriter(gin.DefaultWriter, "/health"))
@@ -23,6 +24,8 @@ func Setup(router *gin.Engine, appLogger *zap.Logger, env *config.Config, dbCont
 		// Add appContext to context for each request
 		c.Set(string(interfaces.ConfigKey), env)
 		c.Set(string(interfaces.MongodbKey), dbContext)
+    // Add state to context for each request
+    c.Set(string(interfaces.StateKey), state)
 		c.Next()
 	})
 	// Add CORS middleware

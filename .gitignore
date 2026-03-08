@@ -62,3 +62,6 @@ test-output
 .env
 *.env.*
 !.env.example
+
+# Custom
+targetFiles/
