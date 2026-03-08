@@ -1,12 +1,13 @@
 package lib
 
 import (
-	"fmt"
 	"path/filepath"
 	"sync"
 	"time"
 
 	pd_interfaces "nx-recipes/dps/lambda/src/processDomain/interfaces"
+
+	"go.uber.org/zap"
 )
 
 type FileProcessing struct {
@@ -17,6 +18,14 @@ type FileProcessing struct {
 	// [ ] Ensure efficient processing for large files
 	Path  string
 	State *sync.Map
+	Log   *zap.Logger
+}
+
+func (f *FileProcessing) logger() *zap.Logger {
+	if f.Log != nil {
+		return f.Log
+	}
+	return zap.NewNop()
 }
 
 func (f *FileProcessing) UpdateState(process_id string, status pd_interfaces.OperationStatusEnum, progress map[string]interface{}, results map[string]interface{}, errorMsg string, estimated_completion string) {
@@ -60,6 +69,7 @@ func (f *FileProcessing) ProcessFilesFromDirectory(process_id string) map[string
 
 	FileManager := &FileManager{
 		Path: f.Path,
+		Log:  f.logger(),
 	}
 	files := FileManager.ListFilesFromPath()
 
@@ -98,7 +108,7 @@ func (f *FileProcessing) ProcessFilesFromDirectory(process_id string) map[string
 	}
 
 	enlapsed_time := time.Since(start_time)
-	fmt.Println("Total processing time:", enlapsed_time.String())
+	f.logger().Info("Total processing time", zap.String("duration", enlapsed_time.String()), zap.String("process_id", process_id))
 	return results
 }
 
@@ -130,7 +140,7 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 
 			startTime := time.Now()
 			fileName := filepath.Base(file["name"].(string))
-			fmt.Printf("Processing file: %s\n", fileName)
+			f.logger().Info("Processing file", zap.String("file", fileName), zap.String("process_id", process_id))
 			time.Sleep(5 * time.Second)
 
 			// TODO: process the file and extract statistics.
@@ -143,7 +153,7 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 			}
 
 			elapsedTime := time.Since(startTime).String()
-			fmt.Printf("Completed processing file: %s in %s\n", fileName, elapsedTime)
+			f.logger().Info("Completed processing file", zap.String("file", fileName), zap.String("duration", elapsedTime), zap.String("process_id", process_id))
 		}()
 	}
 

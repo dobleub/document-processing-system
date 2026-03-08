@@ -29,8 +29,20 @@ import (
 // @Failure 400 {string} string "Bad Request"
 // @Router /process/start [post]
 func StartProcessHandler(c *gin.Context) {
-	state := c.MustGet(string(interfaces.StateKey)).(*sync.Map)
-	logger := c.MustGet(string(interfaces.LoggerKey)).(*zap.Logger).With(zap.String("handler", "StartProcessHandler"), zap.Any("state", state))
+	var state *sync.Map
+	if stateFromCtx, ok := c.Request.Context().Value(interfaces.StateKey).(*sync.Map); ok {
+		state = stateFromCtx
+	} else {
+		state = c.MustGet(string(interfaces.StateKey)).(*sync.Map)
+	}
+
+	var baseLogger *zap.Logger
+	if loggerFromCtx, ok := c.Request.Context().Value(interfaces.LoggerKey).(*zap.Logger); ok {
+		baseLogger = loggerFromCtx
+	} else {
+		baseLogger = c.MustGet(string(interfaces.LoggerKey)).(*zap.Logger)
+	}
+	logger := baseLogger.With(zap.String("handler", "StartProcessHandler"), zap.Any("state", state))
 	start_time := time.Now()
 	// check if the request is POST
 	if c.Request.Method != http.MethodPost {
@@ -63,6 +75,7 @@ func StartProcessHandler(c *gin.Context) {
 	FileProcessing := &pd_lib.FileProcessing{
 		Path:  currentPath + "/targetFiles", // This should be configurable in a real application
 		State: state,
+		Log:   logger,
 	}
 	go FileProcessing.ProcessFilesFromDirectory(id)
 

@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"context"
 	"net/http"
 	"sync"
 
@@ -19,13 +20,12 @@ func Setup(router *gin.Engine, appLogger *zap.Logger, env *config.Config, dbCont
 	router.Use(gin.Recovery())
 	// Add custom context for each request
 	router.Use(func(c *gin.Context) {
-		// Add logger to context for each request
-		c.Set(string(interfaces.LoggerKey), appLogger)
-		// Add appContext to context for each request
-		c.Set(string(interfaces.ConfigKey), env)
-		c.Set(string(interfaces.MongodbKey), dbContext)
-    // Add state to context for each request
-    c.Set(string(interfaces.StateKey), state)
+		reqCtx := c.Request.Context()
+		reqCtx = context.WithValue(reqCtx, interfaces.LoggerKey, appLogger)
+		reqCtx = context.WithValue(reqCtx, interfaces.ConfigKey, env)
+		reqCtx = context.WithValue(reqCtx, interfaces.MongodbKey, dbContext)
+		reqCtx = context.WithValue(reqCtx, interfaces.StateKey, state)
+		c.Request = c.Request.WithContext(reqCtx)
 		c.Next()
 	})
 	// Add CORS middleware

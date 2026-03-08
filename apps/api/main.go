@@ -40,12 +40,6 @@ func init() {
 		panic(appErr)
 	}
 
-	// add env to context
-	appContext = context.WithValue(appContext, interfaces.ConfigKey, env)
-	appLogger.Info("Environment Setted Up")
-	// add log to context
-	appContext = context.WithValue(appContext, interfaces.LoggerKey, appLogger)
-	appLogger.Info("Logger Setted Up")
 	// add mongodb to context
 	mongodbClient, err := database.ConnectMongoDB(*env.MongoDBConfig())
 	if err != nil {
@@ -55,12 +49,11 @@ func init() {
 		Client: mongodbClient,
 		DB:     mongodbClient.Database(env.MongoDBConfig().DB),
 	}
-	appContext = context.WithValue(appContext, interfaces.MongodbKey, dbContext)
 	appLogger.Info("DB Connection Setted Up")
 
 	// setup router
 	router = gin.New()
-	var state sync.Map // Initialize the state map
+	var state sync.Map // Initialize the state map, this states will be used to store the status of each process, it will be shared across all handlers
 	middlewares.Setup(router, appLogger, env, dbContext, &state)
 
 	// setup routes

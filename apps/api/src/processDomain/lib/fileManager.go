@@ -3,6 +3,8 @@ package lib
 import (
 	"fmt"
 	"os"
+
+	"go.uber.org/zap"
 )
 
 type FileManager struct {
@@ -12,6 +14,14 @@ type FileManager struct {
 	// [ ] Ensure efficient memory usage when processing large files
 	Path  string
 	Files []map[string]interface{}
+	Log   *zap.Logger
+}
+
+func (f *FileManager) logger() *zap.Logger {
+	if f.Log != nil {
+		return f.Log
+	}
+	return zap.NewNop()
 }
 
 func (f *FileManager) ListFilesFromPath() []map[string]interface{} {
@@ -24,7 +34,7 @@ func (f *FileManager) ListFilesFromPath() []map[string]interface{} {
 	// go to the specified directory and list all files
 	dirEntries, err := os.ReadDir(f.Path)
 	if err != nil {
-		fmt.Printf("Error reading directory: %v\n", err)
+		f.logger().Error("Error reading directory", zap.String("path", f.Path), zap.Error(err))
 		return files
 	}
 

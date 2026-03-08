@@ -27,8 +27,21 @@ import (
 // @Failure 404 {string} string "Process Not Found"
 // @Router /process/status/{id} [get]
 func StatusProcessHandler(c *gin.Context) {
-	state := c.MustGet(string(interfaces.StateKey)).(*sync.Map)
-	logger := c.MustGet(string(interfaces.LoggerKey)).(*zap.Logger).With(zap.String("handler", "StartProcessHandler"), zap.Any("state", state))
+	var state *sync.Map
+	if stateFromCtx, ok := c.Request.Context().Value(interfaces.StateKey).(*sync.Map); ok {
+		state = stateFromCtx
+	} else {
+		state = c.MustGet(string(interfaces.StateKey)).(*sync.Map)
+	}
+
+	var baseLogger *zap.Logger
+	if loggerFromCtx, ok := c.Request.Context().Value(interfaces.LoggerKey).(*zap.Logger); ok {
+		baseLogger = loggerFromCtx
+	} else {
+		baseLogger = c.MustGet(string(interfaces.LoggerKey)).(*zap.Logger)
+	}
+	logger := baseLogger.With(zap.String("handler", "StatusProcessHandler"), zap.Any("state", state))
+
 	start_time := time.Now()
 	// check if the request is GET
 	if c.Request.Method != http.MethodGet {
