@@ -73,6 +73,40 @@ func (f *FileProcessing) ProcessFilesFromDirectory(process_id string) map[string
 	progress["total_files"] = nfiles
 	f.UpdateState(process_id, pd_interfaces.Running, progress, results, "", totalEstimatedTime.String())
 
+	files_bach := [][]string{}
+	batchSize := 2 // Placeholder for batch size, this could be configurable
+	for i := 0; i < nfiles; i += batchSize {
+		end := i + batchSize
+		if end > nfiles {
+			end = nfiles
+		}
+		files_bach = append(files_bach, files[i:end])
+	}
+
+	for _, batch := range files_bach {
+		resultsBatch := f.ProcessBatchDocuments(process_id, batch, nfiles)
+		// Update results and progress after processing each batch
+		results["total_words"] = results["total_words"].(int) + resultsBatch["total_words"].(int)
+		results["total_lines"] = results["total_lines"].(int) + resultsBatch["total_lines"].(int)
+		results["most_frequent_words"] = append(results["most_frequent_words"].([]string), resultsBatch["most_frequent_words"].([]string)...)
+		filesProcessed = append(filesProcessed, resultsBatch["files_processed"].([]string)...)
+
+		progress["processed_files"] = len(filesProcessed)
+		progress["percentage"] = (progress["processed_files"].(int) * 100) / progress["total_files"].(int)
+
+		f.UpdateState(process_id, pd_interfaces.Running, progress, results, "", "")
+	}
+
+	return results
+}
+
+func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []string, nfiles int) map[string]interface{} {
+	// Batch Document Processing
+	// [x] Accept a batch of documents (e.g., multiple file paths or byte arrays)
+	// [x] Process each document in the batch
+	// [●] Update progress and results for the entire batch
+	results := map[string]interface{}{"total_words": 0, "total_lines": 0, "most_frequent_words": []string{}, "files_processed": []string{}}
+
 	for idx, file := range files {
 		start_time := time.Now()
 		file_name := strings.Split(file, "/")[len(strings.Split(file, "/"))-1]
@@ -80,20 +114,12 @@ func (f *FileProcessing) ProcessFilesFromDirectory(process_id string) map[string
 		time.Sleep(5 * time.Second)
 
 		// TODO: process the file and extract statistics
+		results["total_words"] = results["total_words"].(int) + 100                                                    // Placeholder for word count
+		results["total_lines"] = results["total_lines"].(int) + 10                                                     // Placeholder for line count
+		results["most_frequent_words"] = append(results["most_frequent_words"].([]string), fmt.Sprintf("word%d", idx)) // Placeholder for most frequent words
+		results["files_processed"] = append(results["files_processed"].([]string), file_name)
 
-		filesProcessed = append(filesProcessed, file_name)
-		progress := map[string]interface{}{
-			"total_files":     nfiles,
-			"processed_files": idx + 1,
-			"percentage":      int(float64(idx+1) / float64(nfiles) * 100),
-		}
-		results := map[string]interface{}{
-			"total_words":         1000 + idx,                   // Placeholder for actual word count
-			"total_lines":         100 + idx,                    // Placeholder for actual line count
-			"most_frequent_words": []string{"the", "and", "to"}, // Placeholder for actual frequent words
-			"files_processed":     filesProcessed,
-		}
-		f.UpdateState(process_id, pd_interfaces.Running, progress, results, "", "")
+		// f.UpdateState(process_id, pd_interfaces.Running, progress, results, "", "")
 		elapsedTime := time.Since(start_time).String()
 		fmt.Printf("Completed processing file: %s in %s\n", file_name, elapsedTime)
 	}
