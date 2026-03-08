@@ -10,15 +10,16 @@ type FileManager struct {
 	// [ ] Handle file operations (e.g., reading, writing)
 	// [ ] Manage file paths and directories
 	// [ ] Ensure efficient memory usage when processing large files
-	Path string
+	Path  string
+	Files []map[string]interface{}
 }
 
-func (f *FileManager) ListFilesFromPath() []string {
+func (f *FileManager) ListFilesFromPath() []map[string]interface{} {
 	// List Files from a Path
 	// [ ] Read files from a specified directory
 	// [ ] Filter files based on type (e.g., .txt)
 	// [ ] Return a list of file paths
-	files := []string{}
+	files := []map[string]interface{}{}
 
 	// go to the specified directory and list all files
 	dirEntries, err := os.ReadDir(f.Path)
@@ -29,12 +30,35 @@ func (f *FileManager) ListFilesFromPath() []string {
 
 	for _, entry := range dirEntries {
 		// filter only .txt files
-		if !entry.IsDir() && entry.Name()[len(entry.Name())-4:] == ".txt" {
-			files = append(files, f.Path+"/"+entry.Name())
+		file_info, _ := entry.Info()
+		if !entry.IsDir() && file_info.Size() > 0 && entry.Name()[len(entry.Name())-4:] == ".txt" {
+			// files = append(files, f.Path+"/"+entry.Name())
+			files = append(files, map[string]interface{}{
+				"name": f.Path + "/" + entry.Name(),
+				"info": file_info,
+			})
 		}
 	}
 
+	f.Files = files
 	return files
+}
+
+func (f *FileManager) EstimateProcessFiles() string {
+	// Estimate Process File
+	// [ ] Estimate the time required to process a file based on its size
+	totalEstimateTime := int64(0)
+
+	if len(f.Files) > 0 {
+		for _, file := range f.Files {
+			fileInfo := file["info"].(os.FileInfo)
+			size := fileInfo.Size()
+			estimatedTime := size / (1024 * 1024) // Size in MB
+			totalEstimateTime += estimatedTime
+		}
+	}
+
+	return fmt.Sprintf("%d seconds", totalEstimateTime)
 }
 
 func (f *FileManager) ReadFileContent(filePath string) string {
