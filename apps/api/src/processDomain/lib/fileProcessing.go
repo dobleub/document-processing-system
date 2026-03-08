@@ -2,7 +2,7 @@ package lib
 
 import (
 	"fmt"
-	"strings"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -51,6 +51,7 @@ func (f *FileProcessing) ProcessFilesFromDirectory(process_id string) map[string
 	// [ ] Extract basic statistics: word count, lines, characters
 	// [ ] Identify most frequent words
 	// [●] Generate a content summary
+	start_time := time.Now()
 	progress := map[string]interface{}{"total_files": 0, "processed_files": 0, "percentage": 0}
 	results := map[string]interface{}{"total_words": 0, "total_lines": 0, "most_frequent_words": []string{}, "files_processed": []string{}}
 	filesProcessed := []string{}
@@ -68,12 +69,11 @@ func (f *FileProcessing) ProcessFilesFromDirectory(process_id string) map[string
 		return results
 	}
 
-	estimatedTimePerFile := 5 * time.Second // Placeholder for estimated time per file, in a real application this could be dynamic based on file size or type
-	totalEstimatedTime := time.Duration(nfiles) * estimatedTimePerFile
+	totalEstimatedTime := FileManager.EstimateProcessFiles()
 	progress["total_files"] = nfiles
-	f.UpdateState(process_id, pd_interfaces.Running, progress, results, "", totalEstimatedTime.String())
+	f.UpdateState(process_id, pd_interfaces.Running, progress, results, "", totalEstimatedTime)
 
-	files_bach := [][]string{}
+	files_bach := [][]map[string]interface{}{}
 	batchSize := 2 // Placeholder for batch size, this could be configurable
 	for i := 0; i < nfiles; i += batchSize {
 		end := i + batchSize
@@ -97,31 +97,64 @@ func (f *FileProcessing) ProcessFilesFromDirectory(process_id string) map[string
 		f.UpdateState(process_id, pd_interfaces.Running, progress, results, "", "")
 	}
 
+	enlapsed_time := time.Since(start_time)
+	fmt.Println("Total processing time:", enlapsed_time.String())
 	return results
 }
 
-func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []string, nfiles int) map[string]interface{} {
+func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[string]interface{}, nfiles int) map[string]interface{} {
 	// Batch Document Processing
 	// [x] Accept a batch of documents (e.g., multiple file paths or byte arrays)
 	// [x] Process each document in the batch
 	// [●] Update progress and results for the entire batch
 	results := map[string]interface{}{"total_words": 0, "total_lines": 0, "most_frequent_words": []string{}, "files_processed": []string{}}
 
+	type fileResult struct {
+		idx           int
+		fileName      string
+		totalWords    int
+		totalLines    int
+		frequentWords []string
+	}
+
+	resultsByFile := make([]fileResult, len(files))
+	var wg sync.WaitGroup
+
 	for idx, file := range files {
-		start_time := time.Now()
-		file_name := strings.Split(file, "/")[len(strings.Split(file, "/"))-1]
-		fmt.Printf("Processing file: %s\n", file_name)
-		time.Sleep(5 * time.Second)
+		idx := idx
+		file := file
 
-		// TODO: process the file and extract statistics
-		results["total_words"] = results["total_words"].(int) + 100                                                    // Placeholder for word count
-		results["total_lines"] = results["total_lines"].(int) + 10                                                     // Placeholder for line count
-		results["most_frequent_words"] = append(results["most_frequent_words"].([]string), fmt.Sprintf("word%d", idx)) // Placeholder for most frequent words
-		results["files_processed"] = append(results["files_processed"].([]string), file_name)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
 
-		// f.UpdateState(process_id, pd_interfaces.Running, progress, results, "", "")
-		elapsedTime := time.Since(start_time).String()
-		fmt.Printf("Completed processing file: %s in %s\n", file_name, elapsedTime)
+			startTime := time.Now()
+			fileName := filepath.Base(file["name"].(string))
+			fmt.Printf("Processing file: %s\n", fileName)
+			time.Sleep(5 * time.Second)
+
+			// TODO: process the file and extract statistics.
+			resultsByFile[idx] = fileResult{
+				idx:           idx,
+				fileName:      fileName,
+				totalWords:    100,
+				totalLines:    10,
+				frequentWords: []string{"example", "test"},
+			}
+
+			elapsedTime := time.Since(startTime).String()
+			fmt.Printf("Completed processing file: %s in %s\n", fileName, elapsedTime)
+		}()
+	}
+
+	wg.Wait() // Wait for all files in the batch to be processed
+
+	// Aggregate results from all files in the batch
+	for _, fileResult := range resultsByFile {
+		results["total_words"] = results["total_words"].(int) + fileResult.totalWords
+		results["total_lines"] = results["total_lines"].(int) + fileResult.totalLines
+		results["most_frequent_words"] = append(results["most_frequent_words"].([]string), fileResult.frequentWords...)
+		results["files_processed"] = append(results["files_processed"].([]string), fileResult.fileName)
 	}
 
 	return results
