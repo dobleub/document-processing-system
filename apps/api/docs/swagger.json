@@ -44,6 +44,198 @@
                     }
                 }
             }
+        },
+        "/process/status/{id}": {
+            "get": {
+                "description": "Get the status of a process by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Process"
+                ],
+                "summary": "Get Process Status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Process ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Process Status",
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.OperationStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Process Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/process/upload": {
+            "post": {
+                "description": "Start a new process with the provided data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Process"
+                ],
+                "summary": "Start a Process",
+                "parameters": [
+                    {
+                        "description": "Process Data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Process Started",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "interfaces.OperationProgress": {
+            "type": "object",
+            "properties": {
+                "percentage": {
+                    "type": "integer"
+                },
+                "processed_files": {
+                    "type": "integer"
+                },
+                "total_files": {
+                    "type": "integer"
+                }
+            }
+        },
+        "interfaces.OperationResults": {
+            "type": "object",
+            "properties": {
+                "files_processed": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "most_frequent_words": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "total_lines": {
+                    "type": "integer"
+                },
+                "total_words": {
+                    "type": "integer"
+                }
+            }
+        },
+        "interfaces.OperationStatus": {
+            "type": "object",
+            "properties": {
+                "completed_at": {
+                    "description": "Timestamp when the process completed",
+                    "type": "string"
+                },
+                "error": {
+                    "description": "Error message if the process failed",
+                    "type": "string"
+                },
+                "estimated_completion": {
+                    "description": "Time taken for the process to complete",
+                    "type": "string"
+                },
+                "process_id": {
+                    "description": "Unique identifier for the process",
+                    "type": "string"
+                },
+                "progress": {
+                    "description": "Progress details of the process",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/interfaces.OperationProgress"
+                        }
+                    ]
+                },
+                "results": {
+                    "description": "Result of the process (e.g., summary, statistics)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/interfaces.OperationResults"
+                        }
+                    ]
+                },
+                "started_at": {
+                    "description": "Timestamp when the process started",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Current status of the process",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/interfaces.OperationStatusEnum"
+                        }
+                    ]
+                }
+            }
+        },
+        "interfaces.OperationStatusEnum": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "RUNNING",
+                "PAUSED",
+                "COMPLETED",
+                "FAILED",
+                "STOPPED"
+            ],
+            "x-enum-varnames": [
+                "Pending",
+                "Running",
+                "Paused",
+                "Completed",
+                "Failed",
+                "Stopped"
+            ]
         }
     }
 }

@@ -1,7 +1,134 @@
+definitions:
+  interfaces.OperationProgress:
+    properties:
+      percentage:
+        type: integer
+      processed_files:
+        type: integer
+      total_files:
+        type: integer
+    type: object
+  interfaces.OperationResults:
+    properties:
+      files_processed:
+        items:
+          type: string
+        type: array
+      most_frequent_words:
+        items:
+          type: string
+        type: array
+      total_lines:
+        type: integer
+      total_words:
+        type: integer
+    type: object
+  interfaces.OperationStatus:
+    properties:
+      completed_at:
+        description: Timestamp when the process completed
+        type: string
+      error:
+        description: Error message if the process failed
+        type: string
+      estimated_completion:
+        description: Time taken for the process to complete
+        type: string
+      process_id:
+        description: Unique identifier for the process
+        type: string
+      progress:
+        allOf:
+        - $ref: '#/definitions/interfaces.OperationProgress'
+        description: Progress details of the process
+      results:
+        allOf:
+        - $ref: '#/definitions/interfaces.OperationResults'
+        description: Result of the process (e.g., summary, statistics)
+      started_at:
+        description: Timestamp when the process started
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/interfaces.OperationStatusEnum'
+        description: Current status of the process
+    type: object
+  interfaces.OperationStatusEnum:
+    enum:
+    - PENDING
+    - RUNNING
+    - PAUSED
+    - COMPLETED
+    - FAILED
+    - STOPPED
+    type: string
+    x-enum-varnames:
+    - Pending
+    - Running
+    - Paused
+    - Completed
+    - Failed
+    - Stopped
 info:
   contact: {}
 paths:
   /process/start:
+    post:
+      consumes:
+      - application/json
+      description: Start a new process with the provided data
+      parameters:
+      - description: Process Data
+        in: body
+        name: data
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Process Started
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Start a Process
+      tags:
+      - Process
+  /process/status/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get the status of a process by its ID
+      parameters:
+      - description: Process ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Process Status
+          schema:
+            $ref: '#/definitions/interfaces.OperationStatus'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Process Not Found
+          schema:
+            type: string
+      summary: Get Process Status
+      tags:
+      - Process
+  /process/upload:
     post:
       consumes:
       - application/json
