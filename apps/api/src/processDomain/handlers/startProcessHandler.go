@@ -58,11 +58,10 @@ func StartProcessHandler(c *gin.Context) {
 	state.Store(id, operationResponse)
 
 	// process files from a directory
-	// [ ] Use FileManager to list files from a specified directory
-	// [ ] Read the content of each file
-	// [ ] Generate summaries for each file
-	// [ ] Identify frequent words in each file
-	// [ ] Extract statistics from each file
+	// [x] Use FileManager to list files from a specified directory
+	// [x] Read the content of each file
+	// [●] Generate summaries for each file
+	// [x] Extract statistics from each file
 
 	// get current path
 	currentPath, err := os.Getwd()
