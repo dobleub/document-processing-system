@@ -13,11 +13,13 @@ import (
 	"nx-recipes/dps/lambda/logger"
 	"nx-recipes/dps/lambda/middlewares"
 	processDomainHandlers "nx-recipes/dps/lambda/src/processDomain/handlers"
+	summarizerDomainHandlers "nx-recipes/dps/lambda/src/summarizerDomain/handlers"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
 	"github.com/gin-gonic/gin"
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
@@ -51,15 +53,19 @@ func init() {
 	}
 	appLogger.Info("DB Connection Setted Up")
 
+	// add mcp client to context
+	mcpHandlerSetUp := summarizerDomainHandlers.SetUpMCPHandler(appContext, env, appLogger)
+
 	// setup router
 	router = gin.New()
 	var state sync.Map // Initialize the state map, this states will be used to store the status of each process, it will be shared across all handlers
-	middlewares.Setup(router, appLogger, env, dbContext, &state)
+	middlewares.Setup(router, appLogger, env, dbContext, &state, mcpHandlerSetUp)
 
 	// setup routes
 	router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Hello, World!")
 	})
+	// setup process routes
 	docs.SwaggerInfo.BasePath = "/process"
 	processRouter := router.Group("/process")
 	{
@@ -68,6 +74,18 @@ func init() {
 		processRouter.GET("/status/:id", processDomainHandlers.StatusProcessHandler)
 		processRouter.GET("/list", processDomainHandlers.ListProcessHandler)
 		processRouter.GET("/results/:id", processDomainHandlers.ResultsProcessHandler)
+	}
+	// setup summarizer routes
+	docs.SwaggerInfo.BasePath = "/summarizer"
+	summarizerRouter := router.Group("/summarizer")
+	{
+		mcpHandler := mcp.NewStreamableHTTPHandler(func(r *http.Request) *mcp.Server {
+			return mcpHandlerSetUp.Server
+		}, &mcp.StreamableHTTPOptions{})
+		summarizerRouter.POST("/mcp", func(c *gin.Context) {
+			mcpHandler.ServeHTTP(c.Writer, c.Request)
+		})
+		summarizerRouter.POST("/summarize", summarizerDomainHandlers.HttpSummarizerHandler)
 	}
 	// add swagger docs route
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

@@ -40,7 +40,7 @@ func StopProcessHandler(c *gin.Context) {
 	} else {
 		baseLogger = c.MustGet(string(interfaces.LoggerKey)).(*zap.Logger)
 	}
-	logger := baseLogger.With(zap.String("handler", "StatusProcessHandler"), zap.Any("state", state))
+	logger := baseLogger.With(zap.String("handler", "StopProcessHandler"), zap.Any("state", state))
 
 	start_time := time.Now()
 	// check if the request is POST

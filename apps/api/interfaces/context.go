@@ -13,6 +13,7 @@ const (
 	MongodbKey contextKey = "mongodb"
 	MailerKey  contextKey = "mailer"
 	StateKey   contextKey = "state"
+	McpClient  contextKey = "mcpClient"
 )
 
 // ConnectMongoDB connects to the MongoDB database

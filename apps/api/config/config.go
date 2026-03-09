@@ -38,6 +38,7 @@ type Config struct {
 	AWS          *AWSConfig     `env:", prefix=AWS_" json:",omitempty"`
 	Mail         *MailConfig    `env:", prefix=MAIL_" json:",omitempty"`
 	APIAuthToken string         `env:"API_AUTH_TOKEN" json:",omitempty"`
+	GeminiAPIKey string         `env:"GEMINI_API_KEY" json:",omitempty"`
 }
 
 func SetUp(cxt context.Context) (*Config, error) {
