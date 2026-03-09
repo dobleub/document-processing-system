@@ -7,14 +7,14 @@ import (
 
 	"nx-recipes/dps/lambda/config"
 	"nx-recipes/dps/lambda/interfaces"
-	sd_interfaces "nx-recipes/dps/lambda/src/summarizerDomain/interfaces"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mattn/go-colorable"
 	"go.uber.org/zap"
+	"google.golang.org/genai"
 )
 
-func Setup(router *gin.Engine, appLogger *zap.Logger, env *config.Config, dbContext interfaces.MongoDBContext, state *sync.Map, mcpHandlerSetUp *sd_interfaces.SummarizerHandler) {
+func Setup(router *gin.Engine, appLogger *zap.Logger, env *config.Config, dbContext interfaces.MongoDBContext, state *sync.Map, mcpClient *genai.Client) {
 	// Add logging and recovery middleware
 	gin.DefaultWriter = colorable.NewColorableStdout()
 	router.Use(gin.LoggerWithWriter(gin.DefaultWriter, "/health"))
@@ -26,7 +26,7 @@ func Setup(router *gin.Engine, appLogger *zap.Logger, env *config.Config, dbCont
 		reqCtx = context.WithValue(reqCtx, interfaces.ConfigKey, env)
 		reqCtx = context.WithValue(reqCtx, interfaces.MongodbKey, dbContext)
 		reqCtx = context.WithValue(reqCtx, interfaces.StateKey, state)
-		reqCtx = context.WithValue(reqCtx, interfaces.McpClient, mcpHandlerSetUp.Client)
+		reqCtx = context.WithValue(reqCtx, interfaces.McpClient, mcpClient)
 		c.Request = c.Request.WithContext(reqCtx)
 		c.Next()
 	})

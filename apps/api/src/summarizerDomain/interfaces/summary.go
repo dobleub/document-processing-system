@@ -20,3 +20,9 @@ type SummarizeInput struct {
 type SummarizeOutput struct {
 	Summary string `json:"summary"`
 }
+
+type SummarizeHTTPOutput struct {
+	FileName string `json:"file_name"`
+	FileSize int64  `json:"file_size"`
+	Summary  string `json:"summary"`
+}

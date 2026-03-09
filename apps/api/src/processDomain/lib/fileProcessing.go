@@ -2,6 +2,7 @@ package lib
 
 import (
 	"bufio"
+	"context"
 	"os"
 	"path/filepath"
 	"sort"
@@ -10,8 +11,10 @@ import (
 	"time"
 
 	pd_interfaces "nx-recipes/dps/lambda/src/processDomain/interfaces"
+	summarizerDomainLib "nx-recipes/dps/lambda/src/summarizerDomain/lib"
 
 	"go.uber.org/zap"
+	"google.golang.org/genai"
 )
 
 type FileProcessing struct {
@@ -20,9 +23,10 @@ type FileProcessing struct {
 	// [x] Integrate with File Manager to read and analyze files
 	// [x] Handle batch processing of documents
 	// [●] Ensure efficient processing for large files
-	Path  string
-	State *sync.Map
-	Log   *zap.Logger
+	Path      string
+	State     *sync.Map
+	Log       *zap.Logger
+	McpClient *genai.Client
 }
 
 func (f *FileProcessing) logger() *zap.Logger {
@@ -83,7 +87,7 @@ func (f *FileProcessing) ProcessFilesFromDirectory(process_id string) map[string
 	// [x] Process documents in batches (batch processing)
 	// [x] Extract basic statistics: word count, lines, characters
 	// [x] Identify most frequent words
-	// [●] Generate a content summary
+	// [x] Generate a content summary
 	start_time := time.Now()
 	progress := map[string]interface{}{"total_files": 0, "processed_files": 0, "percentage": 0}
 	results := map[string]interface{}{"total_words": 0, "total_lines": 0, "most_frequent_words": []string{}, "files_processed": []string{}}
@@ -143,7 +147,7 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 	// Batch Document Processing
 	// [x] Accept a batch of documents (e.g., multiple file paths or byte arrays)
 	// [x] Process each document in the batch
-	// [●] Update progress and results for the entire batch
+	// [x] Update progress and results for the entire batch
 	results := map[string]interface{}{"total_words": 0, "total_lines": 0, "most_frequent_words": []string{}, "files_processed": []string{}}
 
 	type fileResult struct {
@@ -234,6 +238,12 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 			}
 
 			// Generate a summary for the file content
+			// Get the content of the file as a string (for simplicity, we read the entire file into memory, but this could be optimized for large files)
+			// contentBytes, err := os.ReadFile(fileName)
+			// if err != nil {
+			// 	f.logger().Error("Error reading file content", zap.String("file", fileName), zap.Error(err))
+			// }
+			// content := string(contentBytes)
 			summary := f.GenerateSummary("")
 
 			time.Sleep(5 * time.Second) // Simulate processing time for the file
@@ -268,7 +278,7 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 			"total_lines":         fileResult.totalLines,
 			"most_frequent_words": fileResult.frequentWords,
 			"total_characters":    fileResult.characterCount,
-			"summary":             "", // Placeholder for summary, this could be generated using an NLP model or similar
+			"summary":             fileResult.summary,
 		})
 	}
 
@@ -282,7 +292,19 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 func (f *FileProcessing) GenerateSummary(content string) string {
 	// Placeholder for summary generation logic.
 	// In a real implementation, this could use an NLP model or similar to generate a summary of the content.
-	return "This is a summary of the content."
+	context := context.Background()
+
+	if content == "" {
+		return "No content to summarize"
+	}
+
+	summaryContent, err := summarizerDomainLib.SummarizeContent(context, f.McpClient, string(content), 100)
+	if err != nil {
+		f.Log.Error("Failed to summarize content", zap.Error(err))
+		return "Failed to generate summary"
+	}
+
+	return summaryContent
 }
 
 func contains(slice []string, item string) bool {

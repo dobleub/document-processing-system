@@ -17,22 +17,11 @@
                     "Process"
                 ],
                 "summary": "List Processes",
-                "parameters": [
-                    {
-                        "description": "Process List",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/interfaces.OperationListResponse"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "Process List",
+                        "description": "List of Processes",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/interfaces.OperationListResponse"
                         }
                     },
                     "400": {
@@ -217,9 +206,9 @@
                 }
             }
         },
-        "/process/upload": {
+        "/summarizer/mcp": {
             "post": {
-                "description": "Start a new process with the provided data",
+                "description": "Handle MCP requests for summarization",
                 "consumes": [
                     "application/json"
                 ],
@@ -227,26 +216,65 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Process"
+                    "Summarizer"
                 ],
-                "summary": "Start a Process\tfrom Uploaded File(s). WIP",
+                "summary": "MCP Handler for Summarizer",
                 "parameters": [
                     {
-                        "description": "Process Data",
+                        "description": "Summarize Input",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/interfaces.SummarizeInput"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Process Started",
+                        "description": "Summarize Output",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/summarizer/summarize": {
+            "post": {
+                "description": "Handle http requests for summarization",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Summarizer"
+                ],
+                "summary": "http Handler for Summarizer",
+                "parameters": [
+                    {
+                        "description": "Summarize Input",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.SummarizeInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.SummarizeHTTPOutput"
                         }
                     },
                     "400": {
@@ -401,6 +429,31 @@
                 "Failed",
                 "Stopped"
             ]
+        },
+        "interfaces.SummarizeHTTPOutput": {
+            "type": "object",
+            "properties": {
+                "file_name": {
+                    "type": "string"
+                },
+                "file_size": {
+                    "type": "integer"
+                },
+                "summary": {
+                    "type": "string"
+                }
+            }
+        },
+        "interfaces.SummarizeInput": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string"
+                },
+                "max_length": {
+                    "type": "integer"
+                }
+            }
         }
     }
 }

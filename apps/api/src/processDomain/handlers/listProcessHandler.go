@@ -21,8 +21,7 @@ import (
 // @Tags Process
 // @Accept json
 // @Produce json
-// @Param data body pd_interfaces.OperationListResponse true "Process List"
-// @Success 200 {string} string "Process List"
+// @Success 200 {object} pd_interfaces.OperationListResponse "List of Processes"
 // @Failure 400 {string} string "Bad Request"
 // @Router /process/list [get]
 func ListProcessHandler(c *gin.Context) {

@@ -96,6 +96,22 @@ definitions:
     - Completed
     - Failed
     - Stopped
+  interfaces.SummarizeHTTPOutput:
+    properties:
+      file_name:
+        type: string
+      file_size:
+        type: integer
+      summary:
+        type: string
+    type: object
+  interfaces.SummarizeInput:
+    properties:
+      file_path:
+        type: string
+      max_length:
+        type: integer
+    type: object
 info:
   contact: {}
 paths:
@@ -104,20 +120,13 @@ paths:
       consumes:
       - application/json
       description: List all processes with their current status
-      parameters:
-      - description: Process List
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/interfaces.OperationListResponse'
       produces:
       - application/json
       responses:
         "200":
-          description: Process List
+          description: List of Processes
           schema:
-            type: string
+            $ref: '#/definitions/interfaces.OperationListResponse'
         "400":
           description: Bad Request
           schema:
@@ -239,31 +248,56 @@ paths:
       summary: Stop a Process
       tags:
       - Process
-  /process/upload:
+  /summarizer/mcp:
     post:
       consumes:
       - application/json
-      description: Start a new process with the provided data
+      description: Handle MCP requests for summarization
       parameters:
-      - description: Process Data
+      - description: Summarize Input
         in: body
         name: data
         required: true
         schema:
-          additionalProperties: true
-          type: object
+          $ref: '#/definitions/interfaces.SummarizeInput'
       produces:
       - application/json
       responses:
         "200":
-          description: Process Started
+          description: Summarize Output
           schema:
             type: string
         "400":
           description: Bad Request
           schema:
             type: string
-      summary: "Start a Process\tfrom Uploaded File(s). WIP"
+      summary: MCP Handler for Summarizer
       tags:
-      - Process
+      - Summarizer
+  /summarizer/summarize:
+    post:
+      consumes:
+      - application/json
+      description: Handle http requests for summarization
+      parameters:
+      - description: Summarize Input
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/interfaces.SummarizeInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/interfaces.SummarizeHTTPOutput'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: http Handler for Summarizer
+      tags:
+      - Summarizer
 swagger: "2.0"

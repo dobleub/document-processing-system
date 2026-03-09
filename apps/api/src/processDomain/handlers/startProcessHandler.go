@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"google.golang.org/genai"
 
 	"nx-recipes/dps/lambda/interfaces"
 	pd_interfaces "nx-recipes/dps/lambda/src/processDomain/interfaces"
@@ -29,6 +30,8 @@ import (
 // @Failure 400 {string} string "Bad Request"
 // @Router /process/start [post]
 func StartProcessHandler(c *gin.Context) {
+	start_time := time.Now()
+
 	var state *sync.Map
 	if stateFromCtx, ok := c.Request.Context().Value(interfaces.StateKey).(*sync.Map); ok {
 		state = stateFromCtx
@@ -43,7 +46,14 @@ func StartProcessHandler(c *gin.Context) {
 		baseLogger = c.MustGet(string(interfaces.LoggerKey)).(*zap.Logger)
 	}
 	logger := baseLogger.With(zap.String("handler", "StartProcessHandler"), zap.Any("state", state))
-	start_time := time.Now()
+
+	var mcpClient *genai.Client
+	if mcpClientFromCtx, ok := c.Request.Context().Value(interfaces.McpClient).(*genai.Client); ok {
+		mcpClient = mcpClientFromCtx
+	} else {
+		mcpClient = c.MustGet(string(interfaces.McpClient)).(*genai.Client)
+	}
+
 	// check if the request is POST
 	if c.Request.Method != http.MethodPost {
 		c.JSON(http.StatusMethodNotAllowed, gin.H{"error": "Method not allowed"})
@@ -60,7 +70,7 @@ func StartProcessHandler(c *gin.Context) {
 	// process files from a directory
 	// [x] Use FileManager to list files from a specified directory
 	// [x] Read the content of each file
-	// [●] Generate summaries for each file
+	// [x] Generate summaries for each file
 	// [x] Extract statistics from each file
 
 	// get current path
@@ -72,9 +82,10 @@ func StartProcessHandler(c *gin.Context) {
 	}
 
 	FileProcessing := &pd_lib.FileProcessing{
-		Path:  currentPath + "/targetFiles", // This should be configurable in a real application
-		State: state,
-		Log:   logger,
+		Path:      currentPath + "/targetFiles", // This should be configurable in a real application
+		State:     state,
+		McpClient: mcpClient,
+		Log:       logger,
 	}
 	go FileProcessing.ProcessFilesFromDirectory(id)
 

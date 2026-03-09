@@ -1,0 +1,55 @@
+{
+	"analysis": {
+		"process_id": "72123a18-137b-4745-ac0c-e31a4a77a8c6",
+		"status": "COMPLETED",
+		"analysis": [
+			{
+				"file_name": "Don_Quijote.txt",
+				"total_words": 389656,
+				"total_lines": 38059,
+				"most_frequent_words": [
+					"que",
+					"de",
+					"y",
+					"la",
+					"a"
+				],
+				"total_characters": 2149688,
+				"summary": "Consumed by chivalric romances, an aging hidalgo transforms into Don Quijote de la Mancha, a self-proclaimed knight-errant. Accompanied by his pragmatic squire, Sancho Panza, Quijote embarks on a quest, battling perceived giants (windmills), staying in \"castles\" (inns), and righting imagined wrongs. These adventures consistently lead to injuries and confusion. The narrative introduces a fictional Arabic historian, Cide Hamete Benengeli. Eventually, friends – a priest and a barber – aided by Dorotea disguised as Princess Micomicona, concoct a plan to lure the deluded knight home. The story masterfully blends satire of chivalric tales with a profound exploration of idealism versus reality."
+			},
+			{
+				"file_name": "Les_Miserables.txt",
+				"total_words": 568652,
+				"total_lines": 73590,
+				"most_frequent_words": [
+					"the",
+					"of",
+					"and",
+					"a",
+					"to"
+				],
+				"total_characters": 3222030,
+				"summary": "Victor Hugo's *Les Misérables* critiques social injustice and poverty. Ex-convict Jean Valjean, hardened by 19 years for stealing bread, is transformed by Bishop Myriel's benevolence, receiving silver and a plea for honesty. Valjean becomes M. Madeleine, a respected mayor. Concurrently, Fantine, a young mother, leaves her daughter Cosette with the cruel Thénardiers and falls into destitution, sacrificing herself for her child. Inspector Javert suspects Madeleine's past. When an innocent man is mistaken for Valjean, Madeleine publicly confesses his true identity to save him, sacrificing his freedom. Fantine dies upon this revelation. Valjean then escapes, determined to rescue Cosette."
+			},
+			{
+				"file_name": "Mobi_Dick.txt",
+				"total_words": 215845,
+				"total_lines": 22314,
+				"most_frequent_words": [
+					"the",
+					"of",
+					"and",
+					"a",
+					"to"
+				],
+				"total_characters": 1231638,
+				"summary": "Herman Melville's \"Moby Dick\" begins with Ishmael's philosophical decision to go to sea, leading him to the whaling town of New Bedford. There, he forms an unexpected bond with the \"pagan\" harpooneer Queequeg. They sign aboard the Pequod, a Nantucket whaling ship commanded by the enigmatic Captain Ahab.\n\nAhab is soon revealed to be a monomaniacal figure, consumed by a vengeful obsession with Moby Dick, a legendary white whale that took his leg. He compels his diverse crew to swear an oath to hunt this specific whale across the world's oceans. The narrative interweaves vivid descriptions of whaling life, the natural history of whales, and deep philosophical reflections on fate, religion, human nature, and the profound, terrifying symbolism of Moby Dick's whiteness, all foreshadowing a perilous, singular pursuit."
+			}
+		]
+	},
+	"progress": {
+		"total_files": 3,
+		"processed_files": 3,
+		"percentage": 100
+	}
+}

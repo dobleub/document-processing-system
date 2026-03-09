@@ -59,7 +59,7 @@ func init() {
 	// setup router
 	router = gin.New()
 	var state sync.Map // Initialize the state map, this states will be used to store the status of each process, it will be shared across all handlers
-	middlewares.Setup(router, appLogger, env, dbContext, &state, mcpHandlerSetUp)
+	middlewares.Setup(router, appLogger, env, dbContext, &state, mcpHandlerSetUp.Client)
 
 	// setup routes
 	router.GET("/", func(c *gin.Context) {

@@ -10,6 +10,7 @@ import (
 	"google.golang.org/genai"
 
 	"nx-recipes/dps/lambda/interfaces"
+	sd_interfaces "nx-recipes/dps/lambda/src/summarizerDomain/interfaces"
 	summarizerDomainLib "nx-recipes/dps/lambda/src/summarizerDomain/lib"
 )
 
@@ -23,7 +24,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param data body sd_interfaces.SummarizeInput true "Summarize Input"
-// @Success 200 {string} string "Summarize Output"
+// @Success 200 {object} sd_interfaces.SummarizeHTTPOutput
 // @Failure 400 {string} string "Bad Request"
 // @Router /summarizer/summarize [post]
 func HttpSummarizerHandler(c *gin.Context) {
@@ -61,7 +62,7 @@ func HttpSummarizerHandler(c *gin.Context) {
 	content := []byte{}
 	fileName := ""
 	fileSize := int64(0)
-	summary := map[string]interface{}{}
+	var summary sd_interfaces.SummarizeHTTPOutput
 	// process single file if exist
 	if file != nil {
 		fileName = fileHeader.Filename
@@ -93,11 +94,12 @@ func HttpSummarizerHandler(c *gin.Context) {
 		return
 	}
 	// append summary to the list
-	summary = map[string]interface{}{
-		"fileName": fileName,
-		"fileSize": fileSize,
-		"summary":  summaryContent,
+	summary = sd_interfaces.SummarizeHTTPOutput{
+		FileName: fileName,
+		FileSize: fileSize,
+		Summary:  summaryContent,
 	}
+
 	duration := time.Since(start_time)
 	// log the duration of the process
 	c.JSON(http.StatusOK, gin.H{"message": "Process Completed", "duration": duration.String(), "summary": summary})
