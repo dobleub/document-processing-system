@@ -153,6 +153,7 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 		totalLines     int
 		frequentWords  []string
 		characterCount int
+		summary        string
 	}
 
 	resultsByFile := make([]fileResult, len(files))
@@ -233,6 +234,9 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 				}
 			}
 
+			// Generate a summary for the file content
+			summary := f.GenerateSummary("")
+
 			time.Sleep(5 * time.Second) // Simulate processing time for the file
 			resultsByFile[idx] = fileResult{
 				idx:            idx,
@@ -241,6 +245,7 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 				totalLines:     totalLines,
 				frequentWords:  mostFrequentWords,
 				characterCount: characterCount,
+				summary:        summary,
 			}
 
 			elapsedTime := time.Since(startTime).String()
@@ -274,11 +279,10 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 	}
 }
 
-func (f *FileProcessing) ProcessScannerBytes([]byte) {
-	// Process Scanner Bytes
-	// [ ] Read bytes from a scanner (e.g., file upload)
-	// [ ] Convert bytes to a readable format (e.g., string)
-	// [ ] Process the content using the same logic as file processing
+func (f *FileProcessing) GenerateSummary(content string) string {
+	// Placeholder for summary generation logic.
+	// In a real implementation, this could use an NLP model or similar to generate a summary of the content.
+	return "This is a summary of the content."
 }
 
 func contains(slice []string, item string) bool {

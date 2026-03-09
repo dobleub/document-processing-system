@@ -1,4 +1,12 @@
 definitions:
+  interfaces.OperationListResponse:
+    properties:
+      processes:
+        description: List of processes with their current status
+        items:
+          $ref: '#/definitions/interfaces.OperationReview'
+        type: array
+    type: object
   interfaces.OperationProgress:
     properties:
       percentage:
@@ -22,6 +30,25 @@ definitions:
         type: integer
       total_words:
         type: integer
+    type: object
+  interfaces.OperationReview:
+    properties:
+      error:
+        description: Error message if the process failed
+        type: string
+      estimated_completion:
+        description: Estimated completion time
+        type: string
+      id:
+        description: Unique identifier for the process
+        type: string
+      started_at:
+        description: Timestamp when the process started
+        type: string
+      status:
+        description: Current status of the process (e.g., "pending", "in_progress",
+          "completed", "failed")
+        type: string
     type: object
   interfaces.OperationStatus:
     properties:
@@ -78,13 +105,12 @@ paths:
       - application/json
       description: List all processes with their current status
       parameters:
-      - description: Process Data
+      - description: Process List
         in: body
         name: data
         required: true
         schema:
-          additionalProperties: true
-          type: object
+          $ref: '#/definitions/interfaces.OperationListResponse'
       produces:
       - application/json
       responses:

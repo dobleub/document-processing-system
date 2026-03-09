@@ -30,13 +30,12 @@ const docTemplate = `{
                 "summary": "List Processes",
                 "parameters": [
                     {
-                        "description": "Process Data",
+                        "description": "Process List",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/interfaces.OperationListResponse"
                         }
                     }
                 ],
@@ -272,6 +271,18 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "interfaces.OperationListResponse": {
+            "type": "object",
+            "properties": {
+                "processes": {
+                    "description": "List of processes with their current status",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/interfaces.OperationReview"
+                    }
+                }
+            }
+        },
         "interfaces.OperationProgress": {
             "type": "object",
             "properties": {
@@ -306,6 +317,31 @@ const docTemplate = `{
                 },
                 "total_words": {
                     "type": "integer"
+                }
+            }
+        },
+        "interfaces.OperationReview": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "description": "Error message if the process failed",
+                    "type": "string"
+                },
+                "estimated_completion": {
+                    "description": "Estimated completion time",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "Unique identifier for the process",
+                    "type": "string"
+                },
+                "started_at": {
+                    "description": "Timestamp when the process started",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Current status of the process (e.g., \"pending\", \"in_progress\", \"completed\", \"failed\")",
+                    "type": "string"
                 }
             }
         },

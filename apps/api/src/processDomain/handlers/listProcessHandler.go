@@ -21,7 +21,7 @@ import (
 // @Tags Process
 // @Accept json
 // @Produce json
-// @Param data body map[string]interface{} true "Process Data"
+// @Param data body pd_interfaces.OperationListResponse true "Process List"
 // @Success 200 {string} string "Process List"
 // @Failure 400 {string} string "Bad Request"
 // @Router /process/list [get]
@@ -47,17 +47,20 @@ func ListProcessHandler(c *gin.Context) {
 		return
 	}
 
-	var processes map[string]map[string]interface{} = make(map[string]map[string]interface{})
+	processes := pd_interfaces.OperationListResponse{
+		Processes: []pd_interfaces.OperationReview{},
+	}
 	state.Range(func(key, value interface{}) bool {
 		if operationResponse, ok := value.(*pd_interfaces.OperationResponse); ok {
 			opStatus := operationResponse.Status
-			processes[opStatus.ID] = map[string]interface{}{
-				"process_id":           opStatus.ID,
-				"status":               opStatus.Status,
-				"error":                opStatus.Error,
-				"started_at":           opStatus.StartedAt,
-				"estimated_completion": opStatus.EstimatedCompletion,
-			}
+
+			processes.Processes = append(processes.Processes, pd_interfaces.OperationReview{
+				ID:                  opStatus.ID,
+				Status:              string(opStatus.Status),
+				Error:               opStatus.Error,
+				StartedAt:           opStatus.StartedAt,
+				EstimatedCompletion: opStatus.EstimatedCompletion,
+			})
 		}
 		return true
 	})
@@ -65,5 +68,5 @@ func ListProcessHandler(c *gin.Context) {
 	duration := time.Since(start_time)
 	logger.Info("List Processes", zap.Duration("duration", duration))
 
-	c.JSON(http.StatusOK, gin.H{"processes": processes})
+	c.JSON(http.StatusOK, gin.H{"processes": processes.Processes})
 }
