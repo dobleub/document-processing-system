@@ -3,6 +3,7 @@ package interfaces
 type OperationResponse struct {
 	Status   OperationStatus         `json:"status"`   // Current status of the process (e.g., "pending", "in_progress", "completed", "failed")
 	Analysis OperationAnalysisResult `json:"analysis"` // Result of the process (e.g., summary, statistics)
+	Stopper  chan struct{}           `json:"-"`        // Channel to signal stopping the process
 }
 
 func (o *OperationResponse) Initialize(id string) {
@@ -13,4 +14,5 @@ func (o *OperationResponse) Initialize(id string) {
 	operationAnalysis := &OperationAnalysisResult{}
 	operationAnalysis.Initialize(id)
 	o.Analysis = *operationAnalysis
+	o.Stopper = make(chan struct{})
 }

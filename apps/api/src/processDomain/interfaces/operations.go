@@ -152,3 +152,8 @@ func (o *OperationStatus) MarkAsFailed(errorMsg string) {
 	o.Error = errorMsg
 	o.CompletedAt = time.Now().Format(time.RFC3339)
 }
+
+func (o *OperationStatus) MarkAsStopped() {
+	o.Status = Stopped
+	o.CompletedAt = time.Now().Format(time.RFC3339)
+}

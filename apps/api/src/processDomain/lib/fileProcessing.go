@@ -16,10 +16,10 @@ import (
 
 type FileProcessing struct {
 	// File Processing
-	// [ ] Implement the core logic for processing text files
+	// [x] Implement the core logic for processing text files
 	// [x] Integrate with File Manager to read and analyze files
-	// [ ] Handle batch processing of documents
-	// [ ] Ensure efficient processing for large files
+	// [x] Handle batch processing of documents
+	// [●] Ensure efficient processing for large files
 	Path  string
 	State *sync.Map
 	Log   *zap.Logger
@@ -39,6 +39,11 @@ func (f *FileProcessing) UpdateState(process_id string, status pd_interfaces.Ope
 
 		opStatus := opResponse.Status
 		opAnalysis := opResponse.Analysis
+
+		if opStatus.Status == pd_interfaces.Stopped {
+			f.logger().Info("Process is stopped, skipping state update", zap.String("process_id", process_id))
+			return
+		}
 
 		opStatus.UpdateOperationStatus(map[string]interface{}{
 			"status":               status,
@@ -75,9 +80,9 @@ func (f *FileProcessing) UpdateState(process_id string, status pd_interfaces.Ope
 func (f *FileProcessing) ProcessFilesFromDirectory(process_id string) map[string]interface{} {
 	// Processing System
 	// [x] Load text files from a specific folder
-	// [ ] Process documents in batches (batch processing)
-	// [ ] Extract basic statistics: word count, lines, characters
-	// [ ] Identify most frequent words
+	// [x] Process documents in batches (batch processing)
+	// [x] Extract basic statistics: word count, lines, characters
+	// [x] Identify most frequent words
 	// [●] Generate a content summary
 	start_time := time.Now()
 	progress := map[string]interface{}{"total_files": 0, "processed_files": 0, "percentage": 0}
@@ -164,6 +169,16 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 			startTime := time.Now()
 			fileName := file["name"].(string)
 			f.logger().Info("Processing file", zap.String("file", fileName), zap.String("process_id", process_id))
+
+			if val, ok := f.State.Load(process_id); ok {
+				opResponse := val.(*pd_interfaces.OperationResponse)
+				select {
+				case <-opResponse.Stopper:
+					f.logger().Info("Process stopped", zap.String("process_id", process_id))
+					return
+				default:
+				}
+			}
 
 			// TODO: process the file and extract statistics.
 			// Open the file, read its content, count words, lines, and identify frequent words.
