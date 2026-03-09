@@ -181,7 +181,6 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 				}
 			}
 
-			// TODO: process the file and extract statistics.
 			// Open the file, read its content, count words, lines, and identify frequent words.
 			var totalWords int = 0                                  // total word count for the file
 			var totalLines int = 0                                  // total line count for the file
@@ -279,6 +278,7 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 	}
 }
 
+// TODO: process the file and generate a summary using an NLP model or similar. For now, this is a placeholder that returns a static summary.
 func (f *FileProcessing) GenerateSummary(content string) string {
 	// Placeholder for summary generation logic.
 	// In a real implementation, this could use an NLP model or similar to generate a summary of the content.

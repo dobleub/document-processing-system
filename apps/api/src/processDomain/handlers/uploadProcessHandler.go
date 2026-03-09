@@ -11,7 +11,7 @@ import (
 // @BasePath /process
 
 // StartProcessController godoc
-// @Summary Start a Process
+// @Summary Start a Process	from Uploaded File(s). WIP
 // @Schemes
 // @Description Start a new process with the provided data
 // @Tags Process
