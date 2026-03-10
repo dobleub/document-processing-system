@@ -1,5 +1,7 @@
 package interfaces
 
+import "path/filepath"
+
 type OperationFileAnalysis struct {
 	FileName          string   `json:"file_name"`
 	TotalWords        int      `json:"total_words"`
@@ -26,7 +28,7 @@ func (o *OperationAnalysisResult) AppendBatchAnalysis(file_analysis []map[string
 	for _, fa := range file_analysis {
 		analysis := OperationFileAnalysis{}
 		if fileName, ok := fa["file_name"].(string); ok {
-			analysis.FileName = fileName
+			analysis.FileName = filepath.Base(fileName)
 		}
 		if totalWords, ok := fa["total_words"].(int); ok {
 			analysis.TotalWords = totalWords

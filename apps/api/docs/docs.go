@@ -296,6 +296,35 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/ws/status": {
+            "get": {
+                "description": "Get the current status of All Process connections via WebSocket",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Websocket Process"
+                ],
+                "summary": "Get All Process Status",
+                "responses": {
+                    "200": {
+                        "description": "List of Processes",
+                        "schema": {
+                            "$ref": "#/definitions/interfaces.OperationListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -334,6 +363,12 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "files_to_process": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "most_frequent_words": {
                     "type": "array",
                     "items": {
@@ -358,6 +393,20 @@ const docTemplate = `{
                 "estimated_completion": {
                     "description": "Estimated completion time",
                     "type": "string"
+                },
+                "files_processed": {
+                    "description": "List of files processed, this is added to give more insights about the process, it can be used to show the progress of the process in the frontend",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "files_to_process": {
+                    "description": "List files to process",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "id": {
                     "description": "Unique identifier for the process",

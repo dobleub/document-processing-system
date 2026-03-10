@@ -324,3 +324,14 @@ func PrimitiveAToArray(p primitive.A) []string {
 	}
 	return result
 }
+
+func CleanFileName(fileName string) string {
+	// Remove any path information and keep only the file name
+	if idx := strings.LastIndex(fileName, "/"); idx != -1 {
+		fileName = fileName[idx+1:]
+	}
+	if idx := strings.LastIndex(fileName, "\\"); idx != -1 {
+		fileName = fileName[idx+1:]
+	}
+	return fileName
+}

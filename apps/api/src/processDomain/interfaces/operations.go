@@ -32,6 +32,7 @@ type OperationResults struct {
 	TotalLines        int      `json:"total_lines"`
 	MostFrequentWords []string `json:"most_frequent_words,omitempty"`
 	FilesProcessed    []string `json:"files_processed,omitempty"`
+	FilesToProcess    []string `json:"files_to_process,omitempty"`
 }
 
 type OperationStatus struct {
@@ -58,6 +59,7 @@ func (o *OperationStatus) Initialize(id string) {
 		TotalLines:        0,
 		MostFrequentWords: []string{},
 		FilesProcessed:    []string{},
+		FilesToProcess:    []string{},
 	}
 	o.Error = ""
 	o.StartedAt = time.Now().Format(time.RFC3339)
@@ -109,9 +111,6 @@ func (o *OperationStatus) UpdateOperationStatus(updateData map[string]interface{
 
 		// Handle MostFrequentWords and FilesProcessed if they are present in the update
 		mfWordsTmp := resultMap["most_frequent_words"]
-		filesProcessedTmp := resultMap["files_processed"]
-
-		// cast to []string if they are present
 		if mfWordsTmp != nil {
 			if mfWords, ok := mfWordsTmp.([]string); ok {
 				o.Result.MostFrequentWords = []string{}
@@ -120,11 +119,23 @@ func (o *OperationStatus) UpdateOperationStatus(updateData map[string]interface{
 				}
 			}
 		}
+		// Handle FilesProcessed if it is present in the update
+		filesProcessedTmp := resultMap["files_processed"]
 		if filesProcessedTmp != nil {
 			if filesProcessed, ok := filesProcessedTmp.([]string); ok {
 				o.Result.FilesProcessed = []string{}
 				for _, file := range filesProcessed {
 					o.Result.FilesProcessed = append(o.Result.FilesProcessed, file)
+				}
+			}
+		}
+		// Handle FilesToProcess if it is present in the update
+		filesToProcessTmp := resultMap["files_to_process"]
+		if filesToProcessTmp != nil {
+			if filesToProcess, ok := filesToProcessTmp.([]string); ok {
+				o.Result.FilesToProcess = []string{}
+				for _, file := range filesToProcess {
+					o.Result.FilesToProcess = append(o.Result.FilesToProcess, file)
 				}
 			}
 		}

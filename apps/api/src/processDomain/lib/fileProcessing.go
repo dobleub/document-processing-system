@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
@@ -100,6 +99,11 @@ func (f *FileProcessing) ProcessFilesFromDirectory(process_id string) map[string
 		Log:  f.logger(),
 	}
 	files := FileManager.ListFilesFromPath()
+	filesToProcess := []string{}
+	for _, file := range files {
+		filesToProcess = append(filesToProcess, file["name"].(string))
+	}
+	results["files_to_process"] = filesToProcess
 
 	nfiles := len(files)
 	if nfiles == 0 {
@@ -130,10 +134,19 @@ func (f *FileProcessing) ProcessFilesFromDirectory(process_id string) map[string
 		results["total_words"] = results["total_words"].(int) + batchResults["total_words"].(int)
 		results["total_lines"] = results["total_lines"].(int) + batchResults["total_lines"].(int)
 		results["most_frequent_words"] = append(results["most_frequent_words"].([]string), batchResults["most_frequent_words"].([]string)...)
+		// Update files processed/to process and current progress
 		filesProcessed = append(filesProcessed, batchResults["files_processed"].([]string)...)
-
+		results["files_processed"] = filesProcessed
 		progress["processed_files"] = len(filesProcessed)
 		progress["percentage"] = (progress["processed_files"].(int) * 100) / progress["total_files"].(int)
+		// Update filesToProcess to remove processed files
+		remainingFiles := []string{}
+		for _, file := range results["files_to_process"].([]string) {
+			if !contains(filesProcessed, file) {
+				remainingFiles = append(remainingFiles, file)
+			}
+		}
+		results["files_to_process"] = remainingFiles
 
 		f.UpdateState(process_id, pd_interfaces.Running, progress, results, "", "", batchAnalysis)
 	}
@@ -244,6 +257,7 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 			// 	f.logger().Error("Error reading file content", zap.String("file", fileName), zap.Error(err))
 			// }
 			// content := string(contentBytes)
+			// summary := f.GenerateSummary(content)
 			summary := f.GenerateSummary("")
 
 			time.Sleep(5 * time.Second) // Simulate processing time for the file
@@ -273,7 +287,7 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 		results["files_processed"] = append(results["files_processed"].([]string), fileResult.fileName)
 
 		fileAnalysis = append(fileAnalysis, map[string]interface{}{
-			"file_name":           filepath.Base(fileResult.fileName),
+			"file_name":           fileResult.fileName,
 			"total_words":         fileResult.totalWords,
 			"total_lines":         fileResult.totalLines,
 			"most_frequent_words": fileResult.frequentWords,

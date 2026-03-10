@@ -18,11 +18,14 @@ func (o *OperationResponse) Initialize(id string) {
 }
 
 type OperationReview struct {
-	ID                  string `json:"id"`                             // Unique identifier for the process
-	Status              string `json:"status"`                         // Current status of the process (e.g., "pending", "in_progress", "completed", "failed")
-	Error               string `json:"error,omitempty"`                // Error message if the process failed
-	StartedAt           string `json:"started_at,omitempty"`           // Timestamp when the process started
-	EstimatedCompletion string `json:"estimated_completion,omitempty"` // Estimated completion time
+	ID                  string   `json:"id"`                   // Unique identifier for the process
+	Status              string   `json:"status"`               // Current status of the process (e.g., "pending", "in_progress", "completed", "failed")
+	Error               string   `json:"error"`                // Error message if the process failed
+	StartedAt           string   `json:"started_at"`           // Timestamp when the process started
+	EstimatedCompletion string   `json:"estimated_completion"` // Estimated completion time
+	FilesProcessed      []string `json:"files_processed"`      // List of files processed, this is added to give more insights about the process, it can be used to show the progress of the process in the frontend
+	FilesToProcess      []string `json:"files_to_process"`     // List files to process
+	CompletedAt         string   `json:"completed_at"`         // Timestamp when the process completed
 }
 
 func (o *OperationReview) Initialize(id string) {
@@ -31,6 +34,9 @@ func (o *OperationReview) Initialize(id string) {
 	o.Error = ""
 	o.StartedAt = ""
 	o.EstimatedCompletion = ""
+	o.FilesProcessed = []string{}
+	o.FilesToProcess = []string{}
+	o.CompletedAt = ""
 }
 
 type OperationListResponse struct {

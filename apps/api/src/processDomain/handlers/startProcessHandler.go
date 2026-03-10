@@ -87,7 +87,7 @@ func StartProcessHandler(c *gin.Context) {
 		McpClient: mcpClient,
 		Log:       logger,
 	}
-	go FileProcessing.ProcessFilesFromDirectory(id)
+	go FileProcessing.ProcessFilesFromDirectory(id) // Process files in a separate goroutine to avoid blocking the request
 
 	duration := time.Since(start_time)
 	logger.Info("Process Started", zap.Duration("duration", duration))

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -53,12 +54,24 @@ func ListProcessHandler(c *gin.Context) {
 		if operationResponse, ok := value.(*pd_interfaces.OperationResponse); ok {
 			opStatus := operationResponse.Status
 
+			filesProcessed := []string{}
+			for _, file := range opStatus.Result.FilesProcessed {
+				filesProcessed = append(filesProcessed, filepath.Base(file))
+			}
+			filesToProcess := []string{}
+			for _, file := range opStatus.Result.FilesToProcess {
+				filesToProcess = append(filesToProcess, filepath.Base(file))
+			}
+
 			processes.Processes = append(processes.Processes, pd_interfaces.OperationReview{
 				ID:                  opStatus.ID,
 				Status:              string(opStatus.Status),
 				Error:               opStatus.Error,
 				StartedAt:           opStatus.StartedAt,
 				EstimatedCompletion: opStatus.EstimatedCompletion,
+				FilesProcessed:      filesProcessed,
+				FilesToProcess:      filesToProcess,
+				CompletedAt:         opStatus.CompletedAt,
 			})
 		}
 		return true

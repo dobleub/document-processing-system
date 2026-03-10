@@ -22,6 +22,10 @@ definitions:
         items:
           type: string
         type: array
+      files_to_process:
+        items:
+          type: string
+        type: array
       most_frequent_words:
         items:
           type: string
@@ -39,6 +43,18 @@ definitions:
       estimated_completion:
         description: Estimated completion time
         type: string
+      files_processed:
+        description: List of files processed, this is added to give more insights
+          about the process, it can be used to show the progress of the process in
+          the frontend
+        items:
+          type: string
+        type: array
+      files_to_process:
+        description: List files to process
+        items:
+          type: string
+        type: array
       id:
         description: Unique identifier for the process
         type: string
@@ -300,4 +316,23 @@ paths:
       summary: http Handler for Summarizer
       tags:
       - Summarizer
+  /ws/status:
+    get:
+      consumes:
+      - application/json
+      description: Get the current status of All Process connections via WebSocket
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of Processes
+          schema:
+            $ref: '#/definitions/interfaces.OperationListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Get All Process Status
+      tags:
+      - Websocket Process
 swagger: "2.0"

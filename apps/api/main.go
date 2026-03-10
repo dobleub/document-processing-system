@@ -14,6 +14,7 @@ import (
 	"nx-recipes/dps/lambda/middlewares"
 	processDomainHandlers "nx-recipes/dps/lambda/src/processDomain/handlers"
 	summarizerDomainHandlers "nx-recipes/dps/lambda/src/summarizerDomain/handlers"
+	websocketDomainHandlers "nx-recipes/dps/lambda/src/websocketDomain/handlers"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -86,6 +87,12 @@ func init() {
 			mcpHandler.ServeHTTP(c.Writer, c.Request)
 		})
 		summarizerRouter.POST("/summarize", summarizerDomainHandlers.HttpSummarizerHandler)
+	}
+	// setup websocket route
+	docs.SwaggerInfo.BasePath = "/ws"
+	wsRouter := router.Group("/ws")
+	{
+		wsRouter.GET("/status", websocketDomainHandlers.StatusProcessHandler)
 	}
 	// add swagger docs route
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
