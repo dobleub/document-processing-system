@@ -386,6 +386,10 @@ const docTemplate = `{
         "interfaces.OperationReview": {
             "type": "object",
             "properties": {
+                "completed_at": {
+                    "description": "Timestamp when the process completed",
+                    "type": "string"
+                },
                 "error": {
                     "description": "Error message if the process failed",
                     "type": "string"
