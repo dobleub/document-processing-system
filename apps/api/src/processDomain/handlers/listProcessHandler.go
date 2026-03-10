@@ -47,9 +47,8 @@ func ListProcessHandler(c *gin.Context) {
 		return
 	}
 
-	processes := pd_interfaces.OperationListResponse{
-		Processes: []pd_interfaces.OperationReview{},
-	}
+	processes := pd_interfaces.OperationListResponse{}
+  processes.Initialize()
 	state.Range(func(key, value interface{}) bool {
 		if operationResponse, ok := value.(*pd_interfaces.OperationResponse); ok {
 			opStatus := operationResponse.Status
@@ -63,7 +62,7 @@ func ListProcessHandler(c *gin.Context) {
 				filesToProcess = append(filesToProcess, filepath.Base(file))
 			}
 
-			processes.Processes = append(processes.Processes, pd_interfaces.OperationReview{
+			processes.AddProcess(pd_interfaces.OperationReview{
 				ID:                  opStatus.ID,
 				Status:              string(opStatus.Status),
 				Error:               opStatus.Error,
@@ -77,6 +76,7 @@ func ListProcessHandler(c *gin.Context) {
 		return true
 	})
 
+  processes.OrderProcesses()
 	duration := time.Since(start_time)
 	logger.Info("List Processes", zap.Duration("duration", duration))
 

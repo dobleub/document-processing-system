@@ -126,7 +126,8 @@ func StatusProcessHandler(c *gin.Context) {
 
 // sendProcessUpdate collects current process statuses and sends if there are changes
 func sendProcessUpdate(conn *websocket.Conn, writeMu *sync.Mutex, state *sync.Map, allProcessSnapshot map[string]string, logger *zap.Logger) error {
-	processes := []pd_interfaces.OperationReview{}
+	processes := pd_interfaces.OperationListResponse{}
+  processes.Initialize()
 
 	currentProcessIDs := make(map[string]bool)
 	hasChanges := false
@@ -145,7 +146,7 @@ func sendProcessUpdate(conn *websocket.Conn, writeMu *sync.Mutex, state *sync.Ma
 				filesToProcess = append(filesToProcess, filepath.Base(file))
 			}
 
-			processes = append(processes, pd_interfaces.OperationReview{
+			processes.AddProcess(pd_interfaces.OperationReview{
 				ID:                  opStatus.ID,
 				Status:              string(opStatus.Status),
 				Error:               opStatus.Error,
@@ -180,7 +181,8 @@ func sendProcessUpdate(conn *websocket.Conn, writeMu *sync.Mutex, state *sync.Ma
 		return nil
 	}
 
-	jsonData, err := json.Marshal(processes)
+  processes.OrderProcesses()
+	jsonData, err := json.Marshal(processes.Processes)
 	if err != nil {
 		logger.Error("Failed to marshal process data", zap.Error(err))
 		return err
@@ -190,7 +192,7 @@ func sendProcessUpdate(conn *websocket.Conn, writeMu *sync.Mutex, state *sync.Ma
 		return err
 	}
 
-	logger.Debug("Sent process update", zap.Int("process_count", len(processes)))
+	logger.Debug("Sent process update", zap.Int("process_count", len(processes.Processes)))
 	return nil
 }
 
