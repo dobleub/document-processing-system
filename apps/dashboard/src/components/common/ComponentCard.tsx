@@ -1,6 +1,7 @@
 import React from "react";
 
 interface ComponentCardProps {
+  prefixTitle?: React.ReactNode; // Optional prefix title, can be a string or a React node
   title: string;
   children: React.ReactNode;
   className?: string; // Additional custom classes for styling
@@ -8,6 +9,7 @@ interface ComponentCardProps {
 }
 
 const ComponentCard: React.FC<ComponentCardProps> = ({
+  prefixTitle,
   title,
   children,
   className = "",
@@ -19,7 +21,8 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
     >
       {/* Card Header */}
       <div className="px-6 py-5">
-        <h3 className="text-base font-medium text-gray-800 dark:text-white/90">
+        <h3 className="flex items-center text-base font-medium text-gray-800 dark:text-white/90">
+          {prefixTitle && <span className="mr-2">{prefixTitle}</span>}
           {title}
         </h3>
         {desc && (

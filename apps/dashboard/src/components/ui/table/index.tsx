@@ -18,6 +18,12 @@ interface TableBodyProps {
   className?: string; // Optional className for styling
 }
 
+// Props for TableFooter
+interface TableFooterProps {
+  children: ReactNode; // Footer row(s)
+  className?: string; // Optional className for styling
+}
+
 // Props for TableRow
 interface TableRowProps {
   children: ReactNode; // Cells (th or td)
@@ -46,6 +52,11 @@ const TableBody: React.FC<TableBodyProps> = ({ children, className }) => {
   return <tbody className={className}>{children}</tbody>;
 };
 
+// TableFooter Component
+const TableFooter: React.FC<TableFooterProps> = ({ children, className }) => {
+  return <tfoot className={className}>{children}</tfoot>;
+};
+
 // TableRow Component
 const TableRow: React.FC<TableRowProps> = ({ children, className }) => {
   return <tr className={className}>{children}</tr>;
@@ -61,4 +72,4 @@ const TableCell: React.FC<TableCellProps> = ({
   return <CellTag className={` ${className}`}>{children}</CellTag>;
 };
 
-export { Table, TableHeader, TableBody, TableRow, TableCell };
+export { Table, TableHeader, TableBody, TableFooter, TableRow, TableCell };
