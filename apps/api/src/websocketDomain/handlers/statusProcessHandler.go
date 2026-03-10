@@ -66,6 +66,7 @@ func StatusProcessHandler(c *gin.Context) {
 	}()
 
 	logger.Info("WebSocket connection established")
+	writeMu := &sync.Mutex{}
 
 	// Set up ping/pong handlers for connection health
 	conn.SetReadDeadline(time.Now().Add(60 * time.Second))
@@ -87,7 +88,7 @@ func StatusProcessHandler(c *gin.Context) {
 			case <-ctx.Done():
 				return
 			case <-pingTicker.C:
-				if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				if err := writeWSMessage(conn, writeMu, websocket.PingMessage, nil); err != nil {
 					logger.Debug("Failed to send ping", zap.Error(err))
 					cancel()
 					return
@@ -103,7 +104,7 @@ func StatusProcessHandler(c *gin.Context) {
 	defer updateTicker.Stop()
 
 	// Send initial state immediately
-	if err := sendProcessUpdate(conn, state, allProcessSnapshot, logger); err != nil {
+	if err := sendProcessUpdate(conn, writeMu, state, allProcessSnapshot, logger); err != nil {
 		logger.Error("Failed to send initial update", zap.Error(err))
 		return
 	}
@@ -115,7 +116,7 @@ func StatusProcessHandler(c *gin.Context) {
 			return
 
 		case <-updateTicker.C:
-			if err := sendProcessUpdate(conn, state, allProcessSnapshot, logger); err != nil {
+			if err := sendProcessUpdate(conn, writeMu, state, allProcessSnapshot, logger); err != nil {
 				logger.Error("Failed to send update", zap.Error(err))
 				return
 			}
@@ -124,7 +125,7 @@ func StatusProcessHandler(c *gin.Context) {
 }
 
 // sendProcessUpdate collects current process statuses and sends if there are changes
-func sendProcessUpdate(conn *websocket.Conn, state *sync.Map, allProcessSnapshot map[string]string, logger *zap.Logger) error {
+func sendProcessUpdate(conn *websocket.Conn, writeMu *sync.Mutex, state *sync.Map, allProcessSnapshot map[string]string, logger *zap.Logger) error {
 	processes := []pd_interfaces.OperationReview{}
 
 	currentProcessIDs := make(map[string]bool)
@@ -185,10 +186,19 @@ func sendProcessUpdate(conn *websocket.Conn, state *sync.Map, allProcessSnapshot
 		return err
 	}
 
-	if err := conn.WriteMessage(websocket.TextMessage, jsonData); err != nil {
+	if err := writeWSMessage(conn, writeMu, websocket.TextMessage, jsonData); err != nil {
 		return err
 	}
 
 	logger.Debug("Sent process update", zap.Int("process_count", len(processes)))
 	return nil
+}
+
+// writeWSMessage ensures only one goroutine writes to the websocket connection at a time.
+func writeWSMessage(conn *websocket.Conn, writeMu *sync.Mutex, messageType int, data []byte) error {
+	writeMu.Lock()
+	defer writeMu.Unlock()
+
+	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	return conn.WriteMessage(messageType, data)
 }
