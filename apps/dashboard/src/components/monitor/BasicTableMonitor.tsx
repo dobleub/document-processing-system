@@ -44,6 +44,12 @@ export default function BasicTableMonitor({ allProcess }: { allProcess: ProcessC
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
+                  #
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
                   ID
                 </TableCell>
                 <TableCell
@@ -81,8 +87,17 @@ export default function BasicTableMonitor({ allProcess }: { allProcess: ProcessC
 
             {/* Table Body */}
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-              {processes.length > 0 ? processes.map((p) => (
+              {processes.length > 0 ? processes.map((p, idx) => (
                 <TableRow key={p.id}>
+                  <TableCell className="px-5 py-4 sm:px-6 text-start">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                          {idx + 1}
+                        </span>
+                      </div>
+                    </div>
+                  </TableCell>
                   <TableCell className="px-5 py-4 sm:px-6 text-start">
                     <div className="flex items-center gap-3">
                       <div>

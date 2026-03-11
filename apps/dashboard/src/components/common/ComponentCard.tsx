@@ -3,6 +3,7 @@ import React from "react";
 interface ComponentCardProps {
   prefixTitle?: React.ReactNode; // Optional prefix title, can be a string or a React node
   title: string;
+  suffixTitle?: React.ReactNode; // Optional suffix title, can be a string or a React node
   children: React.ReactNode;
   className?: string; // Additional custom classes for styling
   desc?: string; // Description text
@@ -11,6 +12,7 @@ interface ComponentCardProps {
 const ComponentCard: React.FC<ComponentCardProps> = ({
   prefixTitle,
   title,
+  suffixTitle,
   children,
   className = "",
   desc = "",
@@ -24,6 +26,7 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
         <h3 className="flex items-center text-base font-medium text-gray-800 dark:text-white/90">
           {prefixTitle && <span className="mr-2">{prefixTitle}</span>}
           {title}
+          {suffixTitle && <span className="ml-2">{suffixTitle}</span>}
         </h3>
         {desc && (
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
