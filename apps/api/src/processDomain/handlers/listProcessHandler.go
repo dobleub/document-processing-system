@@ -80,5 +80,5 @@ func ListProcessHandler(c *gin.Context) {
 	duration := time.Since(start_time)
 	logger.Info("List Processes", zap.Duration("duration", duration))
 
-	c.JSON(http.StatusOK, gin.H{"processes": processes.Processes})
+	c.JSON(http.StatusOK, gin.H{"processes": processes.GetFirstTenProcesses()})
 }

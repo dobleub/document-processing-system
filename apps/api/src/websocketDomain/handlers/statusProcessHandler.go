@@ -182,7 +182,7 @@ func sendProcessUpdate(conn *websocket.Conn, writeMu *sync.Mutex, state *sync.Ma
 	}
 
 	processes.OrderProcesses()
-	jsonData, err := json.Marshal(processes.Processes)
+	jsonData, err := json.Marshal(processes.GetFirstTenProcesses())
 	if err != nil {
 		logger.Error("Failed to marshal process data", zap.Error(err))
 		return err

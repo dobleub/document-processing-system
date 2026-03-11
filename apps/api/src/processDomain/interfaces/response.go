@@ -81,3 +81,11 @@ func (o *OperationListResponse) OrderProcesses() {
 		return o.Processes[i].StartedAt > o.Processes[j].StartedAt
 	})
 }
+
+func (o *OperationListResponse) GetFirstTenProcesses() []OperationReview {
+	end := 10
+	if len(o.Processes) < 10 {
+		end = len(o.Processes)
+	}
+	return o.Processes[:end]
+}
