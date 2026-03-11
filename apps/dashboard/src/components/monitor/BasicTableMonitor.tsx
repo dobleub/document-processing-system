@@ -28,7 +28,7 @@ export default function BasicTableMonitor({ allProcess }: { allProcess: ProcessC
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex items-center gap-2">
               {/* Button start process */}
-              <Button size="sm" onClick={() => startProcess("front")}>Start Process</Button>
+              <Button size="sm" onClick={() => startProcess("front")}>Start New Process</Button>
               <Badge size="md" color={isConnected ? "success" : "error"}>
                 {connectionStatus}
               </Badge>
@@ -81,7 +81,7 @@ export default function BasicTableMonitor({ allProcess }: { allProcess: ProcessC
 
             {/* Table Body */}
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-              {processes.map((p) => (
+              {processes.length > 0 ? processes.map((p) => (
                 <TableRow key={p.id}>
                   <TableCell className="px-5 py-4 sm:px-6 text-start">
                     <div className="flex items-center gap-3">
@@ -151,7 +151,14 @@ export default function BasicTableMonitor({ allProcess }: { allProcess: ProcessC
                     </Button>
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+              : (
+                <TableRow>
+                  <TableCell colSpan={6} className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
+                    No processes found.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
