@@ -65,7 +65,7 @@ func (f *FileManager) EstimateProcessFiles(nActiveProcess int) string {
 			size := fileInfo.Size()
 			// estimate time in seconds based on file size,
 			// assuming processing speed of 1 MB/s and adding 5% time for each active process
-			estimatedTime := float64(size) / (1024 * 1024)
+			estimatedTime := float64(size) * 10 / (1024 * 1024)
 			// assume that each active process reduces the processing speed by 5%
 			if nActiveProcess > 0 {
 				estimatedTime = estimatedTime * (1 + 0.05*float64(nActiveProcess))

@@ -302,13 +302,15 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 
 			// Generate a summary for the file content
 			// Get the content of the file as a string (for simplicity, we read the entire file into memory, but this could be optimized for large files)
-			// contentBytes, err := os.ReadFile(fileName)
-			// if err != nil {
-			// 	f.logger().Error("Error reading file content", zap.String("file", fileName), zap.Error(err))
-			// }
-			// content := string(contentBytes)
-			// summary := f.GenerateSummary(content)
-			summary := f.GenerateSummary("")
+			// Comment next process if you don't want to generate a summary for the file content, this is just a placeholder.
+			contentBytes, err := os.ReadFile(fileName)
+			if err != nil {
+				f.logger().Error("Error reading file content", zap.String("file", fileName), zap.Error(err))
+			}
+			content := string(contentBytes)
+			_ = content // This is to avoid unused variable error if the summary generation is disabled.
+			summary := f.GenerateSummary(content)
+			// summary := f.GenerateSummary("")
 
 			resultsByFile[idx] = fileResult{
 				idx:            idx,
