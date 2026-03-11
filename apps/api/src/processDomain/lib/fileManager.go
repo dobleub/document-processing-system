@@ -26,9 +26,9 @@ func (f *FileManager) logger() *zap.Logger {
 
 func (f *FileManager) ListFilesFromPath() []map[string]interface{} {
 	// List Files from a Path
-	// [ ] Read files from a specified directory
-	// [ ] Filter files based on type (e.g., .txt)
-	// [ ] Return a list of file paths
+	// [x] Read files from a specified directory
+	// [x] Filter files based on type (e.g., .txt)
+	// [x] Return a list of file paths
 	files := []map[string]interface{}{}
 
 	// go to the specified directory and list all files
@@ -54,19 +54,26 @@ func (f *FileManager) ListFilesFromPath() []map[string]interface{} {
 	return files
 }
 
-func (f *FileManager) EstimateProcessFiles() string {
+func (f *FileManager) EstimateProcessFiles(nActiveProcess int) string {
 	// Estimate Process File
-	// [ ] Estimate the time required to process a file based on its size
-	totalEstimateTime := int64(0)
+	// [x] Estimate the time required to process a file based on its size
+	totalEstimateTime := float64(0)
 
 	if len(f.Files) > 0 {
 		for _, file := range f.Files {
 			fileInfo := file["info"].(os.FileInfo)
 			size := fileInfo.Size()
-			estimatedTime := size / (1024 * 1024) // Size in MB
+			// estimate time in seconds based on file size,
+			// assuming processing speed of 1 MB/s and adding 5% time for each active process
+			estimatedTime := float64(size) / (1024 * 1024)
+			// assume that each active process reduces the processing speed by 5%
+			if nActiveProcess > 0 {
+				estimatedTime = estimatedTime * (1 + 0.05*float64(nActiveProcess))
+			}
 			totalEstimateTime += estimatedTime
 		}
 	}
 
-	return fmt.Sprintf("%d seconds", totalEstimateTime)
+	f.logger().Info("Estimated processing time for files", zap.Float64("total_estimate_time_seconds", totalEstimateTime), zap.Int("number_of_files", len(f.Files)))
+	return fmt.Sprintf("%.2f seconds", totalEstimateTime)
 }

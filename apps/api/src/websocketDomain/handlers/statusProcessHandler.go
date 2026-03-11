@@ -127,7 +127,7 @@ func StatusProcessHandler(c *gin.Context) {
 // sendProcessUpdate collects current process statuses and sends if there are changes
 func sendProcessUpdate(conn *websocket.Conn, writeMu *sync.Mutex, state *sync.Map, allProcessSnapshot map[string]string, logger *zap.Logger) error {
 	processes := pd_interfaces.OperationListResponse{}
-  processes.Initialize()
+	processes.Initialize()
 
 	currentProcessIDs := make(map[string]bool)
 	hasChanges := false
@@ -181,7 +181,7 @@ func sendProcessUpdate(conn *websocket.Conn, writeMu *sync.Mutex, state *sync.Ma
 		return nil
 	}
 
-  processes.OrderProcesses()
+	processes.OrderProcesses()
 	jsonData, err := json.Marshal(processes.Processes)
 	if err != nil {
 		logger.Error("Failed to marshal process data", zap.Error(err))

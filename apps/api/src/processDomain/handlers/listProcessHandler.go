@@ -48,7 +48,7 @@ func ListProcessHandler(c *gin.Context) {
 	}
 
 	processes := pd_interfaces.OperationListResponse{}
-  processes.Initialize()
+	processes.Initialize()
 	state.Range(func(key, value interface{}) bool {
 		if operationResponse, ok := value.(*pd_interfaces.OperationResponse); ok {
 			opStatus := operationResponse.Status
@@ -76,7 +76,7 @@ func ListProcessHandler(c *gin.Context) {
 		return true
 	})
 
-  processes.OrderProcesses()
+	processes.OrderProcesses()
 	duration := time.Since(start_time)
 	logger.Info("List Processes", zap.Duration("duration", duration))
 

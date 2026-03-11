@@ -62,17 +62,17 @@ func Setup(router *gin.Engine, appLogger *zap.Logger, env *config.Config, dbCont
 		// Check for Authorization header first
 		var token string
 		authHeader := c.GetHeader("Authorization")
-    connectionType := c.GetHeader("Upgrade")
+		connectionType := c.GetHeader("Upgrade")
 
-    if connectionType == "websocket" {
-      appLogger.Info("WebSocket connection detected, using query parameter for authentication")
-      // Fallback to query parameter for WebSocket connections
-      token = c.Query("token")
-    } else {
-      appLogger.Info("Standard HTTP connection detected, using Authorization header for authentication")
-      // Header-based authentication (REST API)
-      token = authHeader[len("Bearer "):]
-    }
+		if connectionType == "websocket" {
+			appLogger.Info("WebSocket connection detected, using query parameter for authentication")
+			// Fallback to query parameter for WebSocket connections
+			token = c.Query("token")
+		} else {
+			appLogger.Info("Standard HTTP connection detected, using Authorization header for authentication")
+			// Header-based authentication (REST API)
+			token = authHeader[len("Bearer "):]
+		}
 
 		if token == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})

@@ -46,21 +46,21 @@ type OperationListResponse struct {
 }
 
 func (o *OperationListResponse) Initialize() {
-  o.Processes = []OperationReview{}
+	o.Processes = []OperationReview{}
 }
 
 func (o *OperationListResponse) AddProcess(process OperationReview) {
-  o.Processes = append(o.Processes, process)
+	o.Processes = append(o.Processes, process)
 }
 
 func (o *OperationListResponse) OrderProcesses() {
-  // order by startedAt and then by ID DESC to ensure consistent ordering
-  // this is important to prevent unnecessary updates due to ordering changes
-  // when the status and files processed count are the same but the order changes
-  sort.SliceStable(o.Processes, func(i, j int) bool {
-    if o.Processes[i].StartedAt == o.Processes[j].StartedAt {
-      return o.Processes[i].ID > o.Processes[j].ID
-    }
-    return o.Processes[i].StartedAt > o.Processes[j].StartedAt
-  })
+	// order by startedAt and then by ID DESC to ensure consistent ordering
+	// this is important to prevent unnecessary updates due to ordering changes
+	// when the status and files processed count are the same but the order changes
+	sort.SliceStable(o.Processes, func(i, j int) bool {
+		if o.Processes[i].StartedAt == o.Processes[j].StartedAt {
+			return o.Processes[i].ID > o.Processes[j].ID
+		}
+		return o.Processes[i].StartedAt > o.Processes[j].StartedAt
+	})
 }

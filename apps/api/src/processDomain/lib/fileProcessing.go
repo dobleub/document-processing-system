@@ -3,6 +3,7 @@ package lib
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"os"
 	"sort"
 	"strings"
@@ -111,7 +112,16 @@ func (f *FileProcessing) ProcessFilesFromDirectory(process_id string) map[string
 		return results
 	}
 
-	totalEstimatedTime := FileManager.EstimateProcessFiles()
+	// Add nActive process to estimate time remaining
+	nActiveProcesses := 0
+	f.State.Range(func(key, value interface{}) bool {
+		opResponse := value.(*pd_interfaces.OperationResponse)
+		if opResponse.Status.Status == pd_interfaces.Running {
+			nActiveProcesses++
+		}
+		return true
+	})
+	totalEstimatedTime := FileManager.EstimateProcessFiles(nActiveProcesses)
 	progress["total_files"] = nfiles
 	f.UpdateState(process_id, pd_interfaces.Running, progress, results, "", totalEstimatedTime, nil)
 
@@ -148,8 +158,24 @@ func (f *FileProcessing) ProcessFilesFromDirectory(process_id string) map[string
 		}
 		results["files_to_process"] = remainingFiles
 
-		f.UpdateState(process_id, pd_interfaces.Running, progress, results, "", "", batchAnalysis)
+		// Update estimated completion time based on remaining files and processing speed
+		estimatedCompletion := ""
+		processedFiles := progress["processed_files"].(int)
+		totalFiles := progress["total_files"].(int)
+		if processedFiles > 0 && processedFiles < totalFiles {
+			elapsed := time.Since(start_time)
+			remainingFilesCount := totalFiles - processedFiles
+			// Estimate remaining time based on elapsed time and remaining files.
+			// We assume that the processing speed is consistent, which may not be the case in real scenarios, but this is a simple estimation.
+			remainingDuration := time.Duration(float64(elapsed) * (float64(remainingFilesCount) / float64(processedFiles)))
+			estimatedCompletion = formatRemainingDuration(remainingDuration)
+		}
+
+		f.UpdateState(process_id, pd_interfaces.Running, progress, results, "", estimatedCompletion, batchAnalysis)
 	}
+
+	progress["percentage"] = 100
+	f.UpdateState(process_id, pd_interfaces.Completed, progress, results, "", "0s", nil)
 
 	enlapsed_time := time.Since(start_time)
 	f.logger().Info("Total processing time", zap.String("duration", enlapsed_time.String()), zap.String("process_id", process_id))
@@ -260,7 +286,6 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 			// summary := f.GenerateSummary(content)
 			summary := f.GenerateSummary("")
 
-			time.Sleep(5 * time.Second) // Simulate processing time for the file
 			resultsByFile[idx] = fileResult{
 				idx:            idx,
 				fileName:       fileName,
@@ -309,6 +334,7 @@ func (f *FileProcessing) GenerateSummary(content string) string {
 	context := context.Background()
 
 	if content == "" {
+		time.Sleep(5 * time.Second) // Simulate processing time for the file
 		return "No content to summarize"
 	}
 
@@ -328,4 +354,23 @@ func contains(slice []string, item string) bool {
 		}
 	}
 	return false
+}
+
+func formatRemainingDuration(d time.Duration) string {
+	if d <= 0 {
+		return "0s"
+	}
+
+	seconds := int(d.Seconds())
+	hours := seconds / 3600
+	minutes := (seconds % 3600) / 60
+	secs := seconds % 60
+
+	if hours > 0 {
+		return fmt.Sprintf("%dh %dm %ds", hours, minutes, secs)
+	}
+	if minutes > 0 {
+		return fmt.Sprintf("%dm %ds", minutes, secs)
+	}
+	return fmt.Sprintf("%ds", secs)
 }
