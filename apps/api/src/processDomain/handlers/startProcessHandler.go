@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"sync"
@@ -14,6 +15,10 @@ import (
 	"nx-recipes/dps/lambda/interfaces"
 	pd_interfaces "nx-recipes/dps/lambda/src/processDomain/interfaces"
 	pd_lib "nx-recipes/dps/lambda/src/processDomain/lib"
+)
+
+var (
+	Ctx context.Context = context.Background()
 )
 
 // @BasePath /process
@@ -54,6 +59,11 @@ func StartProcessHandler(c *gin.Context) {
 		mcpClient = c.MustGet(string(interfaces.McpClient)).(*genai.Client)
 	}
 
+	mongoClient := &interfaces.MongoCollection{}
+	bgCtx := context.WithValue(context.Background(), interfaces.MongodbKey, c.Request.Context().Value(interfaces.MongodbKey))
+	mongoClient.SetDBContext(bgCtx)
+	mongoClient.SetCollectionName(pd_interfaces.CollectionName)
+
 	// check if the request is POST
 	if c.Request.Method != http.MethodPost {
 		c.JSON(http.StatusMethodNotAllowed, gin.H{"error": "Method not allowed"})
@@ -62,10 +72,13 @@ func StartProcessHandler(c *gin.Context) {
 
 	// process the files
 	id := uuid.New().String()
-
+	// Initialize the operation response and store it in the state and MongoDB
 	operationResponse := &pd_interfaces.OperationResponse{}
 	operationResponse.Initialize(id)
+	// Store the operation response in the state map with the process ID as the key
 	state.Store(id, operationResponse)
+	// Store the initial operation response in MongoDB with the process ID as the _id
+	mongoClient.InsertOne(operationResponse.ToMap())
 
 	// process files from a directory
 	// [x] Use FileManager to list files from a specified directory
@@ -82,10 +95,11 @@ func StartProcessHandler(c *gin.Context) {
 	}
 
 	FileProcessing := &pd_lib.FileProcessing{
-		Path:      currentPath + "/targetFiles", // This should be configurable in a real application
-		State:     state,
-		McpClient: mcpClient,
-		Log:       logger,
+		Path:        currentPath + "/targetFiles", // This should be configurable in a real application
+		State:       state,
+		McpClient:   mcpClient,
+		Log:         logger,
+		MongoClient: mongoClient,
 	}
 	go FileProcessing.ProcessFilesFromDirectory(id) // Process files in a separate goroutine to avoid blocking the request
 

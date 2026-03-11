@@ -10,9 +10,11 @@ import (
 	"sync"
 	"time"
 
+	"nx-recipes/dps/lambda/interfaces"
 	pd_interfaces "nx-recipes/dps/lambda/src/processDomain/interfaces"
 	summarizerDomainLib "nx-recipes/dps/lambda/src/summarizerDomain/lib"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.uber.org/zap"
 	"google.golang.org/genai"
 )
@@ -23,10 +25,11 @@ type FileProcessing struct {
 	// [x] Integrate with File Manager to read and analyze files
 	// [x] Handle batch processing of documents
 	// [●] Ensure efficient processing for large files
-	Path      string
-	State     *sync.Map
-	Log       *zap.Logger
-	McpClient *genai.Client
+	Path        string
+	State       *sync.Map
+	Log         *zap.Logger
+	McpClient   *genai.Client
+	MongoClient *interfaces.MongoCollection
 }
 
 func (f *FileProcessing) logger() *zap.Logger {
@@ -37,46 +40,67 @@ func (f *FileProcessing) logger() *zap.Logger {
 }
 
 func (f *FileProcessing) UpdateState(process_id string, status pd_interfaces.OperationStatusEnum, progress map[string]interface{}, results map[string]interface{}, errorMsg string, estimated_completion string, batchAnalysis []map[string]interface{}) {
+	if f.State == nil {
+		f.logger().Error("State map is nil, skipping update", zap.String("process_id", process_id))
+		return
+	}
+
 	// Helper to update status safely.
 	if val, ok := f.State.Load(process_id); ok {
-		opResponse := val.(*pd_interfaces.OperationResponse)
+		opResponse, ok := val.(*pd_interfaces.OperationResponse)
+		if !ok || opResponse == nil {
+			f.logger().Error("Invalid process state object", zap.String("process_id", process_id))
+			return
+		}
 
 		opStatus := opResponse.Status
 		opAnalysis := opResponse.Analysis
 
 		if opStatus.Status == pd_interfaces.Stopped {
 			f.logger().Info("Process is stopped, skipping state update", zap.String("process_id", process_id))
-			return
-		}
+		} else {
+			opStatus.UpdateOperationStatus(map[string]interface{}{
+				"status":               status,
+				"progress":             progress,
+				"results":              results,
+				"error":                errorMsg,
+				"estimated_completion": estimated_completion,
+			})
 
-		opStatus.UpdateOperationStatus(map[string]interface{}{
-			"status":               status,
-			"progress":             progress,
-			"results":              results,
-			"error":                errorMsg,
-			"estimated_completion": estimated_completion,
-		})
+			if status != "" {
+				opAnalysis.Status = status
+			}
 
-		if status != "" {
-			opAnalysis.Status = status
-		}
+			if progress["percentage"].(int) >= 100 {
+				opStatus.MarkAsCompleted()
+				opAnalysis.MarkAsCompleted()
+				opAnalysis.Status = pd_interfaces.Completed
+			}
 
-		if progress["percentage"].(int) >= 100 {
-			opStatus.MarkAsCompleted()
-			opAnalysis.Status = pd_interfaces.Completed
-		}
+			if errorMsg != "" {
+				opStatus.MarkAsFailed(errorMsg)
+				opAnalysis.MarkAsFailed(errorMsg)
+				opAnalysis.Status = pd_interfaces.Failed
+			}
 
-		if errorMsg != "" {
-			opStatus.MarkAsFailed(errorMsg)
-			opAnalysis.Status = pd_interfaces.Failed
-		}
-
-		if len(batchAnalysis) > 0 {
-			opAnalysis.AppendBatchAnalysis(batchAnalysis)
+			if len(batchAnalysis) > 0 {
+				opAnalysis.AppendBatchAnalysis(batchAnalysis)
+			}
 		}
 
 		opResponse.Status = opStatus
 		opResponse.Analysis = opAnalysis
+
+		// After update the object in memory, try to persist it in MongoDB.
+		if f.MongoClient != nil {
+			updated, err := f.MongoClient.UpdateByID(process_id, bson.M{"$set": opResponse.ToMap()})
+			if err != nil {
+				f.logger().Error("Failed to update process status in MongoDB", zap.String("process_id", process_id), zap.Error(err))
+			} else {
+				f.logger().Info("Process status updated in MongoDB", zap.String("process_id", process_id), zap.Bool("updated", updated != nil && updated.ModifiedCount > 0))
+			}
+		}
+
 		f.State.Store(process_id, opResponse)
 	}
 }

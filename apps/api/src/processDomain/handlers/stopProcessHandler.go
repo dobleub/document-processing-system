@@ -61,8 +61,9 @@ func StopProcessHandler(c *gin.Context) {
 
 	if val, ok := state.Load(processId); ok {
 		opResponse := val.(*pd_interfaces.OperationResponse)
-		close(opResponse.Stopper)         // Signal the process to stop
-		opResponse.Status.MarkAsStopped() // Update the status to "stopped" to avoid further updates
+		close(opResponse.Stopper)           // Signal the process to stop
+		opResponse.Status.MarkAsStopped()   // Update the status to "stopped" to avoid further updates
+		opResponse.Analysis.MarkAsStopped() // Update the analysis status to "stopped" to avoid further updates
 
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusOK, opResponse.Status)

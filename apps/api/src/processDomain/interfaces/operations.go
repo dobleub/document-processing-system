@@ -22,28 +22,28 @@ const (
 )
 
 type OperationProgress struct {
-	TotalFiles     int `json:"total_files"`
-	ProcessedFiles int `json:"processed_files"`
-	Percentage     int `json:"percentage"`
+	TotalFiles     int `json:"total_files" bson:"total_files"`         // Total number of files to process
+	ProcessedFiles int `json:"processed_files" bson:"processed_files"` // Number of files processed so far
+	Percentage     int `json:"percentage" bson:"percentage"`           // Percentage of completion
 }
 
 type OperationResults struct {
-	TotalWords        int      `json:"total_words"`
-	TotalLines        int      `json:"total_lines"`
-	MostFrequentWords []string `json:"most_frequent_words,omitempty"`
-	FilesProcessed    []string `json:"files_processed,omitempty"`
-	FilesToProcess    []string `json:"files_to_process,omitempty"`
+	TotalWords        int      `json:"total_words" bson:"total_words"`
+	TotalLines        int      `json:"total_lines" bson:"total_lines"`
+	MostFrequentWords []string `json:"most_frequent_words,omitempty" bson:"most_frequent_words"`
+	FilesProcessed    []string `json:"files_processed,omitempty" bson:"files_processed"`
+	FilesToProcess    []string `json:"files_to_process,omitempty" bson:"files_to_process"`
 }
 
 type OperationStatus struct {
-	ID                  string              `json:"process_id"`                     // Unique identifier for the process
-	Status              OperationStatusEnum `json:"status,omitempty"`               // Current status of the process
-	Progress            OperationProgress   `json:"progress,omitempty"`             // Progress details of the process
-	Result              OperationResults    `json:"results,omitempty"`              // Result of the process (e.g., summary, statistics)
-	Error               string              `json:"error,omitempty"`                // Error message if the process failed
-	StartedAt           string              `json:"started_at,omitempty"`           // Timestamp when the process started
-	EstimatedCompletion string              `json:"estimated_completion,omitempty"` // Time taken for the process to complete
-	CompletedAt         string              `json:"completed_at,omitempty"`         // Timestamp when the process completed
+	ID                  string              `json:"process_id" bson:"process_id"`                               // Unique identifier for the process
+	Status              OperationStatusEnum `json:"status,omitempty" bson:"status"`                             // Current status of the process
+	Progress            OperationProgress   `json:"progress,omitempty" bson:"progress"`                         // Progress details of the process
+	Result              OperationResults    `json:"results,omitempty" bson:"results"`                           // Result of the process (e.g., summary, statistics)
+	Error               string              `json:"error,omitempty" bson:"error"`                               // Error message if the process failed
+	StartedAt           string              `json:"started_at,omitempty" bson:"started_at"`                     // Timestamp when the process started
+	EstimatedCompletion string              `json:"estimated_completion,omitempty" bson:"estimated_completion"` // Time taken for the process to complete
+	CompletedAt         string              `json:"completed_at,omitempty" bson:"completed_at"`                 // Timestamp when the process completed
 }
 
 func (o *OperationStatus) Initialize(id string) {

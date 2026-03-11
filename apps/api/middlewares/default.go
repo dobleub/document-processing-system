@@ -14,7 +14,7 @@ import (
 	"google.golang.org/genai"
 )
 
-func Setup(router *gin.Engine, appLogger *zap.Logger, env *config.Config, dbContext interfaces.MongoDBContext, state *sync.Map, mcpClient *genai.Client) {
+func Setup(router *gin.Engine, appLogger *zap.Logger, env *config.Config, dbContext *interfaces.MongoDBContext, state *sync.Map, mcpClient *genai.Client) {
 	// Add logging and recovery middleware
 	gin.DefaultWriter = colorable.NewColorableStdout()
 	router.Use(gin.LoggerWithWriter(gin.DefaultWriter, "/health"))

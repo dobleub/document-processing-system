@@ -3,18 +3,18 @@ package interfaces
 import "path/filepath"
 
 type OperationFileAnalysis struct {
-	FileName          string   `json:"file_name"`
-	TotalWords        int      `json:"total_words"`
-	TotalLines        int      `json:"total_lines"`
-	MostFrequentWords []string `json:"most_frequent_words,omitempty"`
-	TotalCharacters   int      `json:"total_characters"`
-	Summary           string   `json:"summary,omitempty"`
+	FileName          string   `json:"file_name" bson:"file_name"`
+	TotalWords        int      `json:"total_words" bson:"total_words"`
+	TotalLines        int      `json:"total_lines" bson:"total_lines"`
+	MostFrequentWords []string `json:"most_frequent_words,omitempty" bson:"most_frequent_words"`
+	TotalCharacters   int      `json:"total_characters" bson:"total_characters"`
+	Summary           string   `json:"summary,omitempty" bson:"summary"`
 }
 
 type OperationAnalysisResult struct {
-	ID       string                  `json:"process_id"`         // Unique identifier for the process
-	Status   OperationStatusEnum     `json:"status"`             // Current status of the process (e.g., "pending", "in_progress", "completed", "failed")
-	Analysis []OperationFileAnalysis `json:"analysis,omitempty"` // Result of the process (e.g., summary, statistics)
+	ID       string                  `json:"process_id" bson:"process_id"`       // Unique identifier for the process
+	Status   OperationStatusEnum     `json:"status" bson:"status"`               // Current status of the process (e.g., "pending", "in_progress", "completed", "failed")
+	Analysis []OperationFileAnalysis `json:"analysis,omitempty" bson:"analysis"` // Result of the process (e.g., summary, statistics)
 }
 
 func (o *OperationAnalysisResult) Initialize(id string) {
@@ -48,4 +48,16 @@ func (o *OperationAnalysisResult) AppendBatchAnalysis(file_analysis []map[string
 
 		o.Analysis = append(o.Analysis, analysis)
 	}
+}
+
+func (o *OperationAnalysisResult) MarkAsCompleted() {
+	o.Status = Completed
+}
+
+func (o *OperationAnalysisResult) MarkAsFailed(errorMsg string) {
+	o.Status = Failed
+}
+
+func (o *OperationAnalysisResult) MarkAsStopped() {
+	o.Status = Stopped
 }

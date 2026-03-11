@@ -1,14 +1,23 @@
 package interfaces
 
-import "sort"
+import (
+	"sort"
+)
+
+var (
+	CollectionName = "processes"
+)
 
 type OperationResponse struct {
-	Status   OperationStatus         `json:"status"`   // Current status of the process (e.g., "pending", "in_progress", "completed", "failed")
-	Analysis OperationAnalysisResult `json:"analysis"` // Result of the process (e.g., summary, statistics)
-	Stopper  chan struct{}           `json:"-"`        // Channel to signal stopping the process
+	ID       string                  `json:"_id" bson:"_id"`           // Unique identifier for the process
+	Status   OperationStatus         `json:"status" bson:"status"`     // Current status of the process (e.g., "pending", "in_progress", "completed", "failed")
+	Analysis OperationAnalysisResult `json:"analysis" bson:"analysis"` // Result of the process (e.g., summary, statistics)
+	Stopper  chan struct{}           `json:"-"`                        // Channel to signal stopping the process
 }
 
 func (o *OperationResponse) Initialize(id string) {
+	o.ID = id
+
 	operationStatus := &OperationStatus{}
 	operationStatus.Initialize(id)
 	o.Status = *operationStatus
@@ -19,15 +28,23 @@ func (o *OperationResponse) Initialize(id string) {
 	o.Stopper = make(chan struct{})
 }
 
+func (o *OperationResponse) ToMap() map[string]interface{} {
+	return map[string]interface{}{
+		"_id":      o.ID,
+		"status":   o.Status,
+		"analysis": o.Analysis,
+	}
+}
+
 type OperationReview struct {
-	ID                  string   `json:"id"`                   // Unique identifier for the process
-	Status              string   `json:"status"`               // Current status of the process (e.g., "pending", "in_progress", "completed", "failed")
-	Error               string   `json:"error"`                // Error message if the process failed
-	StartedAt           string   `json:"started_at"`           // Timestamp when the process started
-	EstimatedCompletion string   `json:"estimated_completion"` // Estimated completion time
-	FilesProcessed      []string `json:"files_processed"`      // List of files processed, this is added to give more insights about the process, it can be used to show the progress of the process in the frontend
-	FilesToProcess      []string `json:"files_to_process"`     // List files to process
-	CompletedAt         string   `json:"completed_at"`         // Timestamp when the process completed
+	ID                  string   `json:"id" bson:"id"`                                     // Unique identifier for the process
+	Status              string   `json:"status" bson:"status"`                             // Current status of the process (e.g., "pending", "in_progress", "completed", "failed")
+	Error               string   `json:"error" bson:"error"`                               // Error message if the process failed
+	StartedAt           string   `json:"started_at" bson:"started_at"`                     // Timestamp when the process started
+	EstimatedCompletion string   `json:"estimated_completion" bson:"estimated_completion"` // Estimated completion time
+	FilesProcessed      []string `json:"files_processed" bson:"files_processed"`           // List of files processed, this is added to give more insights about the process, it can be used to show the progress of the process in the frontend
+	FilesToProcess      []string `json:"files_to_process" bson:"files_to_process"`         // List files to process
+	CompletedAt         string   `json:"completed_at" bson:"completed_at"`                 // Timestamp when the process completed
 }
 
 func (o *OperationReview) Initialize(id string) {

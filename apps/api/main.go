@@ -13,6 +13,7 @@ import (
 	"nx-recipes/dps/lambda/logger"
 	"nx-recipes/dps/lambda/middlewares"
 	processDomainHandlers "nx-recipes/dps/lambda/src/processDomain/handlers"
+	pd_interfaces "nx-recipes/dps/lambda/src/processDomain/interfaces"
 	summarizerDomainHandlers "nx-recipes/dps/lambda/src/summarizerDomain/handlers"
 	websocketDomainHandlers "nx-recipes/dps/lambda/src/websocketDomain/handlers"
 
@@ -23,6 +24,8 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 )
 
@@ -48,20 +51,42 @@ func init() {
 	if err != nil {
 		appLogger.Fatal("error connecting to MongoDB", zap.Error(err))
 	}
-	dbContext := interfaces.MongoDBContext{
-		Client: mongodbClient,
-		DB:     mongodbClient.Database(env.MongoDBConfig().DB),
+	dbContext := &interfaces.MongoDBContext{
+		DB: mongodbClient.Database(env.MongoDBConfig().DB),
 	}
 	appLogger.Info("DB Connection Setted Up")
+	appContext = context.WithValue(appContext, interfaces.MongodbKey, dbContext)
 
 	// add mcp client to context
 	mcpHandlerSetUp := summarizerDomainHandlers.SetUpMCPHandler(appContext, env, appLogger)
 
 	// setup router
 	router = gin.New()
-	var state sync.Map // Initialize the state map, this states will be used to store the status of each process, it will be shared across all handlers
-	middlewares.Setup(router, appLogger, env, dbContext, &state, mcpHandlerSetUp.Client)
+	// initialize the state map, this states will be used to store the status of each process, it will be shared across all handlers
+	var state sync.Map
 
+	// fill the state with the existing processes from MongoDB, this is useful when the API restarts and we want to keep track of the existing processes
+	mongoClient := &interfaces.MongoCollection{}
+	mongoClient.SetDBContext(appContext)
+	mongoClient.SetCollectionName(pd_interfaces.CollectionName)
+	// fetch existing processes from MongoDB and populate the state map
+	limit := int64(10)
+	cursor, count, err := mongoClient.Find(bson.M{}, &options.FindOptions{Limit: &limit})
+	if err != nil {
+		appLogger.Fatal("error fetching existing processes from MongoDB", zap.Error(err))
+	}
+	appLogger.Info("Existing processes fetched from MongoDB", zap.Int32("count", count))
+	for cursor.Next(appContext) {
+		var process pd_interfaces.OperationResponse
+		if err := cursor.Decode(&process); err != nil {
+			appLogger.Error("error decoding process from MongoDB", zap.Error(err))
+			continue
+		}
+		state.Store(process.ID, &process)
+	}
+
+	// setup middlewares
+	middlewares.Setup(router, appLogger, env, dbContext, &state, mcpHandlerSetUp.Client)
 	// setup routes
 	router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Hello, World!")
