@@ -1,0 +1,205 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: My first collection
+meta:
+  id: wrk_a8cb2feabc214c5ba778a3fdd59ab04f
+  created: 1772891501386
+  modified: 1772891501386
+  description: ""
+collection:
+  - url: http://localhost:8080/process/start
+    name: Process Start
+    meta:
+      id: req_12c50305ba7c485f96be36c344d6c6af
+      created: 1772891501448
+      modified: 1772891790816
+      isPrivate: false
+      description: ""
+      sortKey: -1772891501448
+    method: POST
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    authentication:
+      type: bearer
+      token: ea9a2691-1dc4-4962-84ca-04124f2c113b
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/process/status/0c49c413-b033-4210-95b7-2c070e9866e9
+    name: Process Status
+    meta:
+      id: req_070b5a410af04e349d246843eb44ef01
+      created: 1772957210330
+      modified: 1773101388388
+      isPrivate: false
+      description: ""
+      sortKey: -1772891501398
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    authentication:
+      type: bearer
+      token: ea9a2691-1dc4-4962-84ca-04124f2c113b
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/process/results/dadb4256-5d5f-4a5a-8732-900acef452e3
+    name: Process Results
+    meta:
+      id: req_fb91a68df3a24f1685699ea75c0be61a
+      created: 1772958784126
+      modified: 1773087020906
+      isPrivate: false
+      description: ""
+      sortKey: -1772891501348
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    authentication:
+      type: bearer
+      token: ea9a2691-1dc4-4962-84ca-04124f2c113b
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/process/stop/f46cd19c-4e44-456f-b236-70be16b04085
+    name: Process Stop
+    meta:
+      id: req_39bfdee018f94194ba0a1b115eed7f6c
+      created: 1773015532618
+      modified: 1773015955272
+      isPrivate: false
+      description: ""
+      sortKey: -1772891501423
+    method: POST
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    authentication:
+      type: bearer
+      token: ea9a2691-1dc4-4962-84ca-04124f2c113b
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/process/list
+    name: Process List
+    meta:
+      id: req_f15b4f9805054caca02ccf4319c0c741
+      created: 1773016947022
+      modified: 1773016951769
+      isPrivate: false
+      description: ""
+      sortKey: -1772891501298
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    authentication:
+      type: bearer
+      token: ea9a2691-1dc4-4962-84ca-04124f2c113b
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/summarizer/summarize
+    name: Process Summarize
+    meta:
+      id: req_2a89d4e79a7348bfb62a7bc0855579cc
+      created: 1773073167388
+      modified: 1773074465695
+      isPrivate: false
+      description: ""
+      sortKey: -1772891501435.5
+    method: POST
+    body:
+      mimeType: application/octet-stream
+      fileName: /home/omnius/Downloads/Don_Quijote.txt
+    headers:
+      - name: Content-Type
+        value: text/plain
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    authentication:
+      type: bearer
+      token: ea9a2691-1dc4-4962-84ca-04124f2c113b
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: ws://localhost:8080/ws/status
+    name: New WebSocket Request
+    meta:
+      id: ws-req_ad357003203642e39a3c813f8cbe5359
+      created: 1773092700179
+      modified: 1773107710846
+      description: ""
+      sortKey: -1773092700179
+    settings:
+      encodeUrl: true
+      cookies:
+        store: true
+        send: true
+      followRedirects: global
+    authentication:
+      type: bearer
+      token: ea9a2691-1dc4-4962-84ca-04124f2c113b
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_520d493120e4f5bb8a13a4690d518ceb1723f12b
+    created: 1772891501389
+    modified: 1772891501389
+environments:
+  name: Base Environment
+  meta:
+    id: env_520d493120e4f5bb8a13a4690d518ceb1723f12b
+    created: 1772891501388
+    modified: 1772891501388
+    isPrivate: false
