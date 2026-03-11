@@ -145,7 +145,7 @@ export default function BasicTableMonitor({ allProcess }: { allProcess: ProcessC
                       className="bg-orange-500 hover:bg-orange-600 focus:outline-2 focus:outline-offset-2 focus:outline-orange-500 active:bg-orange-700"
                       size="sm"
                       onClick={() => stopProcess(p.id, "front")}
-                      disabled={p.status !== "RUNNING" && p.status !== "PENDING"}
+                      disabled={p.status !== "RUNNING"}
                     >
                       Stop
                     </Button>
