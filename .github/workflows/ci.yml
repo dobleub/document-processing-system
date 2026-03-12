@@ -6,6 +6,11 @@ on:
       - main
   pull_request:
 
+env:
+  NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+  NEXT_PUBLIC_API_URL_FRONT: ${{ vars.NEXT_PUBLIC_API_URL_FRONT }}
+  NEXT_PUBLIC_API_AUTH_TOKEN: ${{ vars.NEXT_PUBLIC_API_AUTH_TOKEN }}
+
 permissions:
   actions: read
   contents: read
@@ -28,14 +33,14 @@ jobs:
       # Cache node_modules
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'npm'
 
       - run: npm ci
 
       # Prepend any command with "nx record --" to record its logs to Nx Cloud
       # - run: npx nx record -- echo Hello World
-      - run: npx nx run-many -t lint test build typecheck
+      - run: npx nx run-many -t test --all --parallel
       # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
       - run: npx nx fix-ci
         if: always()
