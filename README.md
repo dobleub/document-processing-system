@@ -540,6 +540,14 @@ npm run test
 
 ---
 
+## Screenshots
+
+![Document Processing System](./docs/screencapture-dps-running.png)
+
+This is a simple monitor dashboard that displays the first 10 statuses of document processing in real-time using WebSocket. You can see the list of processes, their IDs, and their current status. You can also start a new process using the **Start New Process** button and Stop/Cancel a running process using the **Stop** button.
+
+---
+
 ## Project Statistics
 
 - 📦 **Monorepo**: Single repository with 2 applications, could be add more as needed (e.g., worker service, CLI tool)
