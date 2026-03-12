@@ -106,34 +106,33 @@ This project is organized as a monorepo with the following structure:
 ```
 document-processing-system/
 ├── apps/
-│   ├── api/                    # Go backend service
+│   ├── api/                        # Go backend service
 │   │   ├── main.go
-│   │   ├── config/             # Configuration management
-│   │   ├── handlers/           # HTTP/WebSocket handlers
-│   │   ├── interfaces/         # General interfaces & contracts
-│   │   ├── middlewares/        # Auth & request processing
-│   │   ├── lib/                # Database & utilities
-│   │   ├── docs/               # Swagger API documentation
-│   │   ├── targetFiles/        # Target files for processing
-│   │   └── src/                # Source files for processing modules
-│   │       ├── processDomain/  # Source files for processing files content and managing processes states
-│   │       ├── summarizeDomain/# Source files for summarization files content
-│   │       └── websocketDomain/# Source files for WebSocket communication and real-time updates
+│   │   ├── config/                 # Configuration management
+│   │   ├── interfaces/             # General interfaces & contracts
+│   │   ├── middlewares/            # Auth & request processing
+│   │   ├── lib/                    # Database & utilities
+│   │   ├── docs/                   # Swagger API documentation
+│   │   ├── targetFiles/            # Target files for processing
+│   │   └── src/                    # Source code organized by domain
+│   │       ├── processDomain/      # Source files for processing files content and managing processes states
+│   │       ├── summarizeDomain/    # Source files for summarization files content
+│   │       └── websocketDomain/    # Source files for WebSocket communication and real-time updates
 │   │
-│   └── dashboard/              # Next.js web application
+│   └── dashboard/                  # Next.js web application
 │       ├── src/
-│       │   ├── app/            # Next.js app directory
-│       │   ├── components/     # Reusable React components
-│       │   ├── context/        # React context providers
-│       │   ├── hooks/          # Custom React hooks
-│       │   └── lib/            # API client & utilities
-│       ├── public/             # Static assets
-│       └── tailwind.config.js  # Tailwind CSS configuration
+│       │   ├── app/                # Next.js app directory
+│       │   ├── components/         # Reusable React components
+│       │   ├── context/            # React context providers
+│       │   ├── hooks/              # Custom React hooks
+│       │   └── lib/                # API client & utilities
+│       ├── public/                 # Static assets
+│       └── tailwind.config.js      # Tailwind CSS configuration
 │
-├── db/                          # Database configuration
-├── docker compose.yml           # Docker services orchestration
-├── package.json                 # Root dependencies
-└── nx.json                      # Nx workspace configuration
+├── db/                             # Database configuration
+├── docker compose.yml              # Docker services orchestration
+├── package.json                    # Root dependencies
+└── nx.json                         # Nx workspace configuration
 ```
 
 ### Environment Variables
@@ -167,9 +166,6 @@ The **Dashboard** is a responsive admin interface built with **Next.js 16**, **R
 - **Styling**: Tailwind CSS 4.2.1
 - **Components**: Custom components built on TailAdmin template
 - **State Management**: React Context API
-- **Charts & Visualization**: ApexCharts, Full Calendar
-- **Drag & Drop**: React DnD
-- **File Upload**: React Dropzone
 - **Real-time Updates**: React Use WebSocket
 - **Language**: TypeScript
 
@@ -198,7 +194,7 @@ Located in `apps/dashboard/src/components/`:
 
 ## API Overview
 
-[> API Endpoints](/apps/api/README.md#api-overview)
+[> API Endpoints Documentation](/apps/api/README.md#api-overview)
 
 The **API** is a high-performance backend service built with **Go** and the **Gin** framework. It handles document processing, AI summarization, and real-time WebSocket communications.
 
@@ -543,8 +539,16 @@ npm run test
 ## Screenshots
 
 ![Document Processing System](./docs/screencapture-dps-running.png)
+<center><i>Document Processing System - Real-time Process Monitor</i></center><br />
 
 This is a simple monitor dashboard that displays the first 10 statuses of document processing in real-time using WebSocket. You can see the list of processes, their IDs, and their current status. You can also start a new process using the **Start New Process** button and Stop/Cancel a running process using the **Stop** button.
+
+<br />
+
+![Document Processing System - Swagger Docs](./docs/screencapture-dps-swagger.png)
+<center><i>Document Processing System - Swagger UI</i></center><br />
+
+This is the Swagger UI for the API documentation. It provides a user-friendly interface to explore and test the API endpoints. You can see all available endpoints, their request/response formats, and even execute test requests directly from the UI.
 
 ---
 
@@ -554,7 +558,7 @@ This is a simple monitor dashboard that displays the first 10 statuses of docume
 - 🎯 **Domains**: Process handling, Summarization, WebSocket communication
 - 📁 **Structure**: Feature-based directory organization
 - ⚙️ **Build System**: Nx workspace (NxGo + Next.js)
-- 🧪 **Testing**: Jest for frontend + Go tests for backend, this will be in next iterations
+- 🧪 **Testing**: Jest for frontend + Go tests for backend, this will be done in next iterations
 
 ---
 
