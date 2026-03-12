@@ -19,7 +19,7 @@ A modern, full-stack document processing platform built with **Next.js**, **Go**
 - [Environment Configuration](#environment-configuration)
 - [Available Commands](#available-commands)
 - [API Overview](#api-overview)
-- [API Endpoints](/apps/api/README.md#api-overview)
+- [> API Endpoints](/apps/api/README.md#api-overview)
 
 ---
 
@@ -198,7 +198,7 @@ Located in `apps/dashboard/src/components/`:
 
 ## API Overview
 
-- [API Endpoints](/apps/api/README.md#api-overview)
+[> API Endpoints](/apps/api/README.md#api-overview)
 
 The **API** is a high-performance backend service built with **Go** and the **Gin** framework. It handles document processing, AI summarization, and real-time WebSocket communications.
 

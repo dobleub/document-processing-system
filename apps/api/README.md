@@ -1,6 +1,6 @@
 # Document Processing API
 
-- [Back to README.md](/README.md#api-overview)
+[< Back to README.md](/README.md#api-overview)
 
 Go API service for:
 
