@@ -309,8 +309,8 @@ func (f *FileProcessing) ProcessBatchDocuments(process_id string, files []map[st
 			}
 			content := string(contentBytes)
 			_ = content // This is to avoid unused variable error if the summary generation is disabled.
-			summary := f.GenerateSummary(content)
-			// summary := f.GenerateSummary("")
+			// summary := f.GenerateSummary(content)
+			summary := f.GenerateSummary("")
 
 			resultsByFile[idx] = fileResult{
 				idx:            idx,
