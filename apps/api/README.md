@@ -1,5 +1,7 @@
 # Document Processing API
 
+- [Back to README.md](/README.md#api-overview)
+
 Go API service for:
 
 - Running asynchronous document processing jobs
