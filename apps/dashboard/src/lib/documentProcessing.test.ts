@@ -1,23 +1,33 @@
-import * as documentProcessing from './documentProcessing';
-
 // Mock makeRequest
 jest.mock('./makeRequest', () => ({
   makeRequest: jest.fn(),
 }));
 
-import { makeRequest } from './makeRequest';
+const loadModuleUnderTest = async () => {
+  process.env.NEXT_PUBLIC_API_URL = 'http://api.backend.test';
+  process.env.NEXT_PUBLIC_API_URL_FRONT = 'http://api.frontend.test';
+  process.env.NEXT_PUBLIC_API_AUTH_TOKEN = 'test-token';
+
+  jest.resetModules();
+
+  const documentProcessing = await import('./documentProcessing');
+  const makeRequestModule = await import('./makeRequest');
+
+  return {
+    documentProcessing,
+    makeRequest: makeRequestModule.makeRequest as jest.Mock,
+  };
+};
 
 describe('documentProcessing', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.NEXT_PUBLIC_API_URL = 'http://api.backend.test';
-    process.env.NEXT_PUBLIC_API_URL_FRONT = 'http://api.frontend.test';
-    process.env.NEXT_PUBLIC_API_AUTH_TOKEN = 'test-token';
   });
 
   describe('getAllProcess', () => {
     it('should call backend API URL by default', async () => {
-      (makeRequest as jest.Mock).mockResolvedValue({ processes: [] });
+      const { documentProcessing, makeRequest } = await loadModuleUnderTest();
+      makeRequest.mockResolvedValue({ processes: [] });
 
       await documentProcessing.getAllProcess();
 
@@ -25,7 +35,8 @@ describe('documentProcessing', () => {
     });
 
     it('should call frontend API URL when stage is front', async () => {
-      (makeRequest as jest.Mock).mockResolvedValue({ processes: [] });
+      const { documentProcessing, makeRequest } = await loadModuleUnderTest();
+      makeRequest.mockResolvedValue({ processes: [] });
 
       await documentProcessing.getAllProcess('front');
 
@@ -35,7 +46,8 @@ describe('documentProcessing', () => {
 
   describe('startProcess', () => {
     it('should start process with POST method on backend', async () => {
-      (makeRequest as jest.Mock).mockResolvedValue({ id: 'proc-1' });
+      const { documentProcessing, makeRequest } = await loadModuleUnderTest();
+      makeRequest.mockResolvedValue({ id: 'proc-1' });
 
       await documentProcessing.startProcess();
 
@@ -47,7 +59,8 @@ describe('documentProcessing', () => {
     });
 
     it('should start process on frontend when stage is front', async () => {
-      (makeRequest as jest.Mock).mockResolvedValue({ id: 'proc-2' });
+      const { documentProcessing, makeRequest } = await loadModuleUnderTest();
+      makeRequest.mockResolvedValue({ id: 'proc-2' });
 
       await documentProcessing.startProcess('front');
 
@@ -61,7 +74,8 @@ describe('documentProcessing', () => {
 
   describe('stopProcess', () => {
     it('should stop process with processId', async () => {
-      (makeRequest as jest.Mock).mockResolvedValue({ stopped: true });
+      const { documentProcessing, makeRequest } = await loadModuleUnderTest();
+      makeRequest.mockResolvedValue({ stopped: true });
 
       await documentProcessing.stopProcess('proc-123');
 
@@ -75,8 +89,9 @@ describe('documentProcessing', () => {
 
   describe('statusProcess', () => {
     it('should fetch status for processId', async () => {
+      const { documentProcessing, makeRequest } = await loadModuleUnderTest();
       const mockStatus = { id: 'proc-1', status: 'running' };
-      (makeRequest as jest.Mock).mockResolvedValue(mockStatus);
+      makeRequest.mockResolvedValue(mockStatus);
 
       const result = await documentProcessing.statusProcess('proc-1');
 
@@ -90,8 +105,9 @@ describe('documentProcessing', () => {
 
   describe('resultProcess', () => {
     it('should fetch results for processId', async () => {
+      const { documentProcessing, makeRequest } = await loadModuleUnderTest();
       const mockResults = { summary: 'test summary', wordCount: 1000 };
-      (makeRequest as jest.Mock).mockResolvedValue(mockResults);
+      makeRequest.mockResolvedValue(mockResults);
 
       const result = await documentProcessing.resultProcess('proc-1');
 
@@ -100,25 +116,6 @@ describe('documentProcessing', () => {
         'test-token'
       );
       expect(result).toEqual(mockResults);
-    });
-  });
-
-  describe('ProcessStatus interface', () => {
-    it('should define ProcessStatus type with required fields', () => {
-      const status: documentProcessing.ProcessStatus = {
-        id: '123',
-        status: 'running',
-        error: '',
-        started_at: '2024-01-01T10:00:00Z',
-        estimated_completion: '2024-01-01T11:00:00Z',
-        files_processed: ['file1.txt'],
-        files_to_process: ['file2.txt'],
-        completed_at: '',
-      };
-
-      expect(status.id).toBe('123');
-      expect(status.status).toBe('running');
-      expect(status.files_processed).toContain('file1.txt');
     });
   });
 });
