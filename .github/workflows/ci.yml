@@ -5,11 +5,8 @@ on:
     branches:
       - main
   pull_request:
-
-env:
-  NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
-  NEXT_PUBLIC_API_URL_FRONT: ${{ vars.NEXT_PUBLIC_API_URL_FRONT }}
-  NEXT_PUBLIC_API_AUTH_TOKEN: ${{ vars.NEXT_PUBLIC_API_AUTH_TOKEN }}
+    branches:
+      - main
 
 permissions:
   actions: read
@@ -40,8 +37,6 @@ jobs:
 
       # Prepend any command with "nx record --" to record its logs to Nx Cloud
       - run: npx nx record -- echo Starting CI run
-      # Echo all environment variables for debugging purposes (optional)
-      - run: printenv
       # Run tests in parallel across all projects
       - run: npx nx run-many -t test --all --parallel
       # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
