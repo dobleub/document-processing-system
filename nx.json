@@ -42,7 +42,12 @@
     },
     { "plugin": "@nx/jest/plugin", "options": { "targetName": "test" } }
   ],
-  "targetDefaults": { "test": { "dependsOn": ["^build"] } },
+  "targetDefaults": {
+    "dev": {
+      "continuous": true
+    },
+    "test": { "dependsOn": ["^build"] } 
+  },
   "generators": {
     "@nx/next": { "application": { "style": "tailwind", "linter": "none" } }
   }

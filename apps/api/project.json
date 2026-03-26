@@ -24,7 +24,8 @@
       "options": {
         "cwd": "apps/api",
         "command": "GO111MODULE=auto gin --immediate --buildArgs=\"-gcflags='all=-N -l' -ldflags='-s -w' -buildvcs=false\" --laddr=0.0.0.0 --port=3030 --appPort=8080 run main.go"
-      }
+      },
+      "continuous": true
     },
     "dlv": {
       "executor": "nx:run-commands",
