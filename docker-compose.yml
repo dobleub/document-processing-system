@@ -6,9 +6,10 @@ services:
       context: .
       dockerfile: app.dockerfile
     ports:
-      - "3030:3000"
+      - '3030:3000'
     volumes:
       - ./:/app
+      - nx_app:/app/.nx
     env_file:
       - ./apps/dashboard/.env
     depends_on:
@@ -23,9 +24,10 @@ services:
       context: .
       dockerfile: api.dockerfile
     ports:
-      - "8080:8080"
+      - '8080:8080'
     volumes:
       - ./:/app
+      - nx_api:/app/.nx
     env_file:
       - ./apps/api/.env
     depends_on:
@@ -38,7 +40,7 @@ services:
     restart: unless-stopped
     image: mongo:8-noble
     ports:
-      - "27018:27017"
+      - '27018:27017'
     volumes:
       - mongo-data:/data/db
     env_file:
@@ -52,3 +54,7 @@ networks:
 
 volumes:
   mongo-data:
+
+  nx_app:
+
+  nx_api:
